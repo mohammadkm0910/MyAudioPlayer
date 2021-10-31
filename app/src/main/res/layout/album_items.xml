@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginTop="8dp"
+    android:foreground="?selectableItemBackground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="8dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/itemCoverAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@color/grey_300"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_albums"
+            app:shapeAppearanceOverlay="@style/Theme.MyMediaPlayer.ImageRounded"/>
+        <TextView
+            android:id="@+id/itemNameAlbum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/grey_900"
+            android:paddingVertical="2dp"
+            android:paddingHorizontal="8dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
