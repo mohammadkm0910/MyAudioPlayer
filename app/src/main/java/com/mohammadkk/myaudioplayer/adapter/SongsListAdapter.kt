@@ -15,6 +15,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.google.android.material.imageview.ShapeableImageView
 import android.widget.TextView
+import com.mohammadkk.myaudioplayer.helper.getAlbumCoverByUri
 
 class SongsListAdapter(private val activity: Activity, private val songFiles: List<Songs>) :
     RecyclerView.Adapter<SongsHolder>() {
@@ -25,8 +26,8 @@ class SongsListAdapter(private val activity: Activity, private val songFiles: Li
     }
     override fun onBindViewHolder(holder: SongsHolder, position: Int) {
         MusicUtil.createThread {
-            val cover = MusicUtil.getAlbumCoverByUri(
-                activity, Uri.parse(
+            val cover = activity.getAlbumCoverByUri(
+                Uri.parse(
                     songFiles[position].albumArt
                 )
             )

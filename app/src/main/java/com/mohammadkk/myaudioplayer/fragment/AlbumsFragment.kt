@@ -10,8 +10,9 @@ import com.mohammadkk.myaudioplayer.MainActivity
 import android.content.Intent
 import com.mohammadkk.myaudioplayer.PlayerActivity
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import com.mohammadkk.myaudioplayer.MainActivity.Companion.songsAllList
+import com.mohammadkk.myaudioplayer.PlayerListActivity
 import com.mohammadkk.myaudioplayer.databinding.FragmentAlbumsBinding
 import com.mohammadkk.myaudioplayer.helper.getAllAlbum
 import com.mohammadkk.myaudioplayer.helper.getAllSongs
@@ -28,19 +29,12 @@ class AlbumsFragment : RequireFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         runTimePermission {
-            val tempSongs = ArrayList<Songs>()
-            requireContext().getAllAlbum().forEach {
-                tempSongs.addAll(requireContext().getAllSongs(it.id))
-            }
-            songsAllList = tempSongs
-            compareTo(tempSongs)
-            val adapter = AlbumGridAdapter(requireActivity(), songsAllList)
+            val albums = requireContext().getAllAlbum()
+            compareAlbums(albums)
+            val adapter = AlbumGridAdapter(requireActivity(), albums)
             adapter.setOnClickItemViewAlbum {
-                Intent(context, PlayerActivity::class.java).apply {
-                    putExtra("positionStart", it)
-                    putExtra("songs_list", tempSongs)
-                    MainActivity.isFadeActivity = false
-                    MainActivity.isRestartActivity = true
+                Intent(context, PlayerListActivity::class.java).apply {
+                    putExtra("album_id", albums[it].id)
                     startActivity(this)
                 }
             }

@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
             if (MediaService.isService) {
                 val playIntent = Intent(this@MainActivity, PlayerActivity::class.java)
                 playIntent.putExtra("positionStart", pref.getInt("play_pos", 0))
-                playIntent.putExtra("songs_list", songsAllList)
                 isRestartActivity = false
                 isFadeActivity = true
                 startActivity(playIntent)
@@ -113,9 +112,9 @@ class MainActivity : AppCompatActivity() {
             binding.miniBtnPlayPause.setImageResource(it)
         })
         SharedPreferenceIntLiveData(pref, "play_pos", 0).observe(this, {
-            if (songsAllList.isNotEmpty()) {
-                val title = songsAllList[it].title
-                val artist = songsAllList[it].artist
+            if (MediaService.mediaList.isNotEmpty()) {
+                val title = MediaService.mediaList[it].title
+                val artist = MediaService.mediaList[it].artist
                 binding.miniTitleMusic.text = String.format("%s - %s", title, artist)
             }
         })
@@ -131,7 +130,5 @@ class MainActivity : AppCompatActivity() {
         var isFadeActivity = false
         @JvmField
         var isRestartActivity = false
-        @JvmField
-        var songsAllList = ArrayList<Songs>()
     }
 }

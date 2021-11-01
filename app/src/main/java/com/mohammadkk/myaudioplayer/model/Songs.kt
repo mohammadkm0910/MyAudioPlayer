@@ -7,6 +7,7 @@ import android.os.Parcelable.Creator
 data class Songs(
     val id: Long,
     val albumArt: String,
+    val duration: Int,
     val path: String,
     val title: String,
     val artist: String,
@@ -16,6 +17,7 @@ data class Songs(
     constructor(source: Parcel) : this(
         source.readLong(),
         source.readString() ?: "",
+        source.readInt(),
         source.readString() ?: "",
         source.readString() ?: "",
         source.readString() ?: "",
@@ -27,6 +29,7 @@ data class Songs(
     override fun writeToParcel(dest: Parcel?, flags: Int) {
         dest?.writeLong(this.id)
         dest?.writeString(this.albumArt)
+        dest?.writeInt(this.duration)
         dest?.writeString(this.path)
         dest?.writeString(this.title)
         dest?.writeString(this.artist)

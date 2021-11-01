@@ -30,9 +30,8 @@ class ArtistsFragment : RequireFragment() {
             requireContext().getAllAlbum().forEach {
                 tempSongs.addAll(requireContext().getAllSongs(it.id))
             }
-            MainActivity.songsAllList = tempSongs
-            compareTo(tempSongs)
-            val adapter = ArtistGridAdapter(requireContext(), MainActivity.songsAllList)
+            compareSongs(tempSongs)
+            val adapter = ArtistGridAdapter(requireContext(), tempSongs)
             adapter.setOnClickItemViewArtist {
                 Intent(context, PlayerActivity::class.java).apply {
                     putExtra("positionStart", it)

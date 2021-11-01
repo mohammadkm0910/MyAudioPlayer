@@ -1,28 +1,21 @@
 package com.mohammadkk.myaudioplayer.fragment
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.mohammadkk.myaudioplayer.model.Albums
 import com.mohammadkk.myaudioplayer.model.Songs
 
 open class RequireFragment : Fragment() {
+
     protected fun runTimePermission(callback:()->Unit) {
         if (!isGrantedPermission()) {
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -55,8 +48,11 @@ open class RequireFragment : Fragment() {
             read == PackageManager.PERMISSION_GRANTED || write == PackageManager.PERMISSION_GRANTED
         } else true
     }
-    protected fun compareTo(list: ArrayList<Songs>) {
+    protected fun compareSongs(list: ArrayList<Songs>) {
         list.sortWith { o1, o2 -> o1.title.compareTo(o2.title) }
+    }
+    protected fun compareAlbums(list: ArrayList<Albums>) {
+        list.sortWith { o1, o2 -> o1.name.compareTo(o2.name) }
     }
     protected fun isPortraitScreen(): Boolean {
         return requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT

@@ -12,7 +12,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mohammadkk.myaudioplayer.MainActivity
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isFadeActivity
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isRestartActivity
-import com.mohammadkk.myaudioplayer.MainActivity.Companion.songsAllList
 import com.mohammadkk.myaudioplayer.PlayerActivity
 import com.mohammadkk.myaudioplayer.R
 import com.mohammadkk.myaudioplayer.adapter.SongsListAdapter
@@ -37,9 +36,8 @@ class SongsFragment : RequireFragment() {
             requireContext().getAllAlbum().forEach {
                 tempSongs.addAll(requireContext().getAllSongs(it.id))
             }
-            compareTo(tempSongs)
-            songsAllList = tempSongs
-            adapter = SongsListAdapter(requireActivity(), songsAllList)
+            compareSongs(tempSongs)
+            adapter = SongsListAdapter(requireActivity(), tempSongs)
             adapter.setOnClickItemViewSong {
                 Intent(requireContext(), PlayerActivity::class.java).apply {
                     putExtra("positionStart", it)
