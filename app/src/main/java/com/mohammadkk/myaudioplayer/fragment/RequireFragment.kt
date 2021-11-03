@@ -15,7 +15,6 @@ import com.mohammadkk.myaudioplayer.model.Albums
 import com.mohammadkk.myaudioplayer.model.Songs
 
 open class RequireFragment : Fragment() {
-
     protected fun runTimePermission(callback:()->Unit) {
         if (!isGrantedPermission()) {
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->

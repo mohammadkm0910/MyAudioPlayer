@@ -6,8 +6,8 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore.Audio
+import android.view.LayoutInflater
 import androidx.loader.content.CursorLoader
 import com.mohammadkk.myaudioplayer.model.Albums
 import com.mohammadkk.myaudioplayer.model.Songs
@@ -89,3 +89,4 @@ fun Context.getAlbumCoverByUri(uri: Uri): Bitmap? {
     }
     return cover
 }
+val Context.inflater: LayoutInflater get() = LayoutInflater.from(this)

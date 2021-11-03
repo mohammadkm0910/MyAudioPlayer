@@ -1,34 +1,27 @@
 package com.mohammadkk.myaudioplayer.service
 
-import android.os.IBinder
-import com.mohammadkk.myaudioplayer.service.MediaService.BindService
-import android.media.MediaPlayer
-import android.support.v4.media.session.MediaSessionCompat
-import com.mohammadkk.myaudioplayer.service.CallBackService
-import com.mohammadkk.myaudioplayer.service.MediaService
-import com.mohammadkk.myaudioplayer.model.Songs
-import android.content.Intent
-import android.media.MediaPlayer.OnCompletionListener
-import kotlin.Throws
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
-import android.support.v4.media.MediaMetadataCompat
-import android.media.MediaMetadata
-import com.mohammadkk.myaudioplayer.PlayerActivity
 import android.app.PendingIntent
 import android.app.Service
-import com.mohammadkk.myaudioplayer.NotificationReceiver
-import com.mohammadkk.myaudioplayer.MediaApplication
-import android.graphics.Bitmap
+import android.content.Intent
 import android.graphics.BitmapFactory
-import com.mohammadkk.myaudioplayer.R
-import android.content.SharedPreferences
+import android.media.MediaMetadata
+import android.media.MediaPlayer
 import android.os.Binder
+import android.os.IBinder
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import com.mohammadkk.myaudioplayer.MediaApplication
+import com.mohammadkk.myaudioplayer.NotificationReceiver
+import com.mohammadkk.myaudioplayer.PlayerActivity
+import com.mohammadkk.myaudioplayer.R
+import com.mohammadkk.myaudioplayer.helper.MusicUtil
+import com.mohammadkk.myaudioplayer.model.Songs
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
 
 class MediaService : Service() {
-    var bindService: IBinder = BindService()
+    private var bindService: IBinder = BindService()
     private var mediaPlayer: MediaPlayer? = null
     private var mediaSessionCompat: MediaSessionCompat? = null
     private var callBackService: CallBackService? = null

@@ -2,29 +2,24 @@ package com.mohammadkk.myaudioplayer.adapter
 
 import android.app.Activity
 import android.content.ContentUris
-import androidx.recyclerview.widget.RecyclerView
-import com.mohammadkk.myaudioplayer.adapter.AlbumGridAdapter.AlbumHolder
-import android.view.ViewGroup
-import android.view.LayoutInflater
-import com.mohammadkk.myaudioplayer.R
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
 import android.content.res.ColorStateList
-import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import com.google.android.material.imageview.ShapeableImageView
-import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.mohammadkk.myaudioplayer.R
+import com.mohammadkk.myaudioplayer.adapter.AlbumGridAdapter.AlbumHolder
+import com.mohammadkk.myaudioplayer.databinding.AlbumItemsBinding
+import com.mohammadkk.myaudioplayer.helper.MusicUtil
 import com.mohammadkk.myaudioplayer.helper.getAlbumCoverByUri
+import com.mohammadkk.myaudioplayer.helper.inflater
 import com.mohammadkk.myaudioplayer.model.Albums
 
 class AlbumGridAdapter(private val activity: Activity, private val items: List<Albums>) :
     RecyclerView.Adapter<AlbumHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
-        return AlbumHolder(
-            LayoutInflater.from(activity).inflate(R.layout.album_items, parent, false)
-        )
+        return AlbumHolder(AlbumItemsBinding.inflate(activity.inflater, parent, false))
     }
-
     override fun onBindViewHolder(holder: AlbumHolder, position: Int) {
         MusicUtil.createThread {
             val cover = activity.getAlbumCoverByUri(
@@ -47,7 +42,7 @@ class AlbumGridAdapter(private val activity: Activity, private val items: List<A
             }
         }
         holder.itemNameAlbum.text = items[position].name
-        holder.itemView.setOnClickListener {
+        holder.container.setOnClickListener {
             onClickItemViewAlbum(position)
         }
     }
@@ -56,11 +51,11 @@ class AlbumGridAdapter(private val activity: Activity, private val items: List<A
         return items.size
     }
 
-    class AlbumHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var itemCoverAlbum: ShapeableImageView = itemView.findViewById(R.id.itemCoverAlbum)
-        var itemNameAlbum: TextView = itemView.findViewById(R.id.itemNameAlbum)
+    class AlbumHolder(binding: AlbumItemsBinding) : RecyclerView.ViewHolder(binding.root) {
+        var itemCoverAlbum = binding.itemCoverAlbum
+        var itemNameAlbum = binding.itemNameAlbum
+        val container = binding.root
     }
-
     fun setOnClickItemViewAlbum(listener:(position:Int)->Unit) {
         onClickItemViewAlbum = listener
     }
