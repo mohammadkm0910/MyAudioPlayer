@@ -13,9 +13,18 @@
         android:background="?colorPrimary"
         app:navigationIcon="?android:attr/homeAsUpIndicator"
         android:theme="@style/Theme.MyMediaPlayer.AppBarOverlay"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/songsByAlbum"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"/>
+        android:layout_above="@+id/nowPlayerFrag"
+        android:layout_below="@+id/toolbar" />
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nowPlayerFrag"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:name="com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment"
+        android:visibility="gone"/>
 </RelativeLayout>

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/miniMusic"/>
+        app:layout_constraintBottom_toTopOf="@+id/nowPlayerFrag"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationMusic"
         android:layout_width="0dp"
@@ -23,38 +23,14 @@
         app:menu="@menu/menu_navigation"
         app:itemTextColor="@color/color_selector_bottom_bar_music"
         app:itemIconTint="@color/color_selector_bottom_bar_music"/>
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/miniMusic"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nowPlayerFrag"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationMusic"
+        android:name="com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment"
         android:background="@drawable/bg_mini_player"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:visibility="gone">
-        <TextView
-            android:id="@+id/miniTitleMusic"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textStyle="bold"
-            android:textSize="25sp"
-            android:textColor="@color/grey_900"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:paddingHorizontal="8dp"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:focusable="true"
-            android:scrollHorizontally="true"/>
-        <ImageButton
-            android:id="@+id/miniBtnPlayPause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:tint="@color/black"
-            android:src="@drawable/ic_pause"
-            android:background="?selectableItemBackgroundBorderless"
-            android:padding="4dp"
-            android:layout_marginHorizontal="8dp"
-            android:contentDescription="@null"/>
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

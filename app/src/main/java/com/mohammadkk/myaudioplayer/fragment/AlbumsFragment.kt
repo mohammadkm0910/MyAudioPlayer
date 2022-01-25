@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.mohammadkk.myaudioplayer.PlayerListActivity
 import com.mohammadkk.myaudioplayer.adapter.AlbumGridAdapter
 import com.mohammadkk.myaudioplayer.databinding.FragmentAlbumsBinding
-import com.mohammadkk.myaudioplayer.helper.getAllAlbum
+import com.mohammadkk.myaudioplayer.extension.getAllAlbum
 
-class AlbumsFragment : RequireFragment() {
+class AlbumsFragment : BaseFragment() {
     private lateinit var binding: FragmentAlbumsBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -20,19 +20,20 @@ class AlbumsFragment : RequireFragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        runTimePermission {
-            val albums = requireContext().getAllAlbum()
-            compareAlbums(albums)
-            val adapter = AlbumGridAdapter(requireActivity(), albums)
-            adapter.setOnClickItemViewAlbum {
-                Intent(context, PlayerListActivity::class.java).apply {
-                    putExtra("album_id", albums[it].id)
-                    startActivity(this)
-                }
-            }
-            binding.albumsGridView.adapter = adapter
-        }
+        runTimeViewLoader()
         val span = if (isPortraitScreen()) 2 else 4
         binding.albumsGridView.layoutManager = GridLayoutManager(context,span)
+    }
+    override fun runTimeViewLoader() {
+        val albums = requireContext().getAllAlbum()
+        compareAlbums(albums)
+        val adapter = AlbumGridAdapter(requireActivity(), albums)
+        adapter.setOnClickItemViewAlbum {
+            Intent(context, PlayerListActivity::class.java).apply {
+                putExtra("album_id", albums[it].id)
+                startActivity(this)
+            }
+        }
+        binding.albumsGridView.adapter = adapter
     }
 }

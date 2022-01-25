@@ -2,14 +2,14 @@ package com.mohammadkk.myaudioplayer
 
 import android.content.Intent
 import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mohammadkk.myaudioplayer.adapter.SongsListAdapter
 import com.mohammadkk.myaudioplayer.databinding.ActivityPlayerListBinding
-import com.mohammadkk.myaudioplayer.helper.getAllSongs
+import com.mohammadkk.myaudioplayer.extension.getAllSongs
+import com.mohammadkk.myaudioplayer.service.MediaService
 
 class PlayerListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerListBinding
@@ -39,6 +39,10 @@ class PlayerListActivity : AppCompatActivity() {
             }
         }
         binding.songsByAlbum.layoutManager = GridLayoutManager(this, span)
+    }
+    override fun onResume() {
+        super.onResume()
+        binding.nowPlayerFrag.isVisible = MediaService.isService
     }
     override fun onPause() {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)

@@ -10,20 +10,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mohammadkk.myaudioplayer.R
 import com.mohammadkk.myaudioplayer.adapter.AlbumGridAdapter.AlbumHolder
 import com.mohammadkk.myaudioplayer.databinding.AlbumItemsBinding
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
-import com.mohammadkk.myaudioplayer.helper.getAlbumCoverByUri
-import com.mohammadkk.myaudioplayer.helper.inflater
+import com.mohammadkk.myaudioplayer.extension.getAlbumCoverByUri
+import com.mohammadkk.myaudioplayer.extension.inflater
+import com.mohammadkk.myaudioplayer.helper.BuildUtil
+import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.model.Albums
 
 class AlbumGridAdapter(private val activity: Activity, private val items: List<Albums>) :
     RecyclerView.Adapter<AlbumHolder>() {
+    private var onClickItemViewAlbum : ((position:Int)->Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
         return AlbumHolder(AlbumItemsBinding.inflate(activity.inflater, parent, false))
     }
     override fun onBindViewHolder(holder: AlbumHolder, position: Int) {
-        MusicUtil.createThread {
+        BuildUtil.buildBaseThread {
             val cover = activity.getAlbumCoverByUri(
-                ContentUris.withAppendedId(MusicUtil.ALBUM_ART, items[position].id)
+                ContentUris.withAppendedId(Constants.ALBUM_ART, items[position].id)
             )
             activity.runOnUiThread {
                 if (cover != null) {
@@ -43,7 +46,7 @@ class AlbumGridAdapter(private val activity: Activity, private val items: List<A
         }
         holder.itemNameAlbum.text = items[position].name
         holder.container.setOnClickListener {
-            onClickItemViewAlbum(position)
+            onClickItemViewAlbum?.invoke(position)
         }
     }
 
@@ -58,9 +61,5 @@ class AlbumGridAdapter(private val activity: Activity, private val items: List<A
     }
     fun setOnClickItemViewAlbum(listener:(position:Int)->Unit) {
         onClickItemViewAlbum = listener
-    }
-
-    companion object {
-        private lateinit var onClickItemViewAlbum:(position:Int)->Unit
     }
 }

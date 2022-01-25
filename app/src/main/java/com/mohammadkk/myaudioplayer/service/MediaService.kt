@@ -11,11 +11,10 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
-import com.mohammadkk.myaudioplayer.MediaApplication
-import com.mohammadkk.myaudioplayer.NotificationReceiver
-import com.mohammadkk.myaudioplayer.PlayerActivity
-import com.mohammadkk.myaudioplayer.R
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
+import com.mohammadkk.myaudioplayer.*
+import com.mohammadkk.myaudioplayer.extension.getCoverTrack
+import com.mohammadkk.myaudioplayer.extension.toContentUri
+import com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment
 import com.mohammadkk.myaudioplayer.model.Songs
 import java.io.IOException
 import java.util.*
@@ -39,8 +38,10 @@ class MediaService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        var pos = buildCacheApp.positionService
+        pos = if (pos <= mediaList.size && pos >= 0) pos else 0
         val actionName = intent.getStringExtra("actionName")
-        servicePosition = intent.getIntExtra("index_service", 0)
+        servicePosition = intent.getIntExtra("index_service", pos)
         mediaPlayer!!.setOnCompletionListener {
             callBackService!!.setNextMusic()
         }
@@ -65,7 +66,7 @@ class MediaService : Service() {
 
     @Throws(IOException::class)
     fun createMediaPlayer(position: Int) {
-        mediaPlayer!!.setDataSource(this, MusicUtil.getUriPath(mediaList[position]))
+        mediaPlayer!!.setDataSource(this, mediaList[servicePosition].id.toContentUri())
         servicePosition = position
         val builder = MediaMetadataCompat.Builder()
             .putString(MediaMetadata.METADATA_KEY_TITLE, mediaList[servicePosition].title)
@@ -76,10 +77,6 @@ class MediaService : Service() {
             .build()
         mediaSessionCompat!!.setMetadata(builder)
     }
-
-    val positionService: Int
-        get() = servicePosition
-
     @Throws(IOException::class)
     fun prepare() {
         mediaPlayer!!.prepare()
@@ -105,20 +102,18 @@ class MediaService : Service() {
     fun showNotification(playImg: Int) {
         val intent = Intent(this, PlayerActivity::class.java)
         val contentIntent = PendingIntent.getActivity(this, 0, intent, 0)
-        val prevIntent = Intent(this, NotificationReceiver::class.java).setAction(MediaApplication.ACTION_PREVIOUS)
+        val prevIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_PREVIOUS)
         val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val pauseIntent = Intent(this, NotificationReceiver::class.java).setAction(MediaApplication.ACTION_PLAY)
+        val pauseIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_PLAY)
         val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val nextIntent = Intent(this, NotificationReceiver::class.java).setAction(MediaApplication.ACTION_NEXT)
+        val nextIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_NEXT)
         val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val thumbInit = MusicUtil.getSongCover(baseContext, MusicUtil.getUriPath(mediaList[servicePosition]))
+        val thumbInit = baseContext.getCoverTrack(mediaList[servicePosition].id.toContentUri())
         val thumb = thumbInit ?: BitmapFactory.decodeResource(resources, R.drawable.ic_music_large)
-        val pref = getSharedPreferences("cache_service", MODE_PRIVATE)
-        val editor = pref.edit()
-        editor.putInt("play_state", playImg)
-        editor.putInt("play_pos", servicePosition)
-        editor.apply()
-        val notification = NotificationCompat.Builder(this, MediaApplication.MUSIC_CHANNEL)
+        buildCacheApp.iconPausedService = playImg
+        buildCacheApp.positionService = servicePosition
+        NowPlayerFragment.listener?.updateNowPlay(playImg, mediaList[servicePosition])
+        val notification = NotificationCompat.Builder(this, AudioApp.AUDIO_CHANNEL)
             .setSmallIcon(R.drawable.ic_songs)
             .setLargeIcon(thumb)
             .setContentTitle(mediaList[servicePosition].title)

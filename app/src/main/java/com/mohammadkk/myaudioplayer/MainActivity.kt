@@ -1,24 +1,30 @@
 package com.mohammadkk.myaudioplayer
 
-import androidx.appcompat.app.AppCompatActivity
-import android.content.SharedPreferences
-import android.os.Bundle
-import com.mohammadkk.myaudioplayer.model.Songs
-import com.mohammadkk.myaudioplayer.service.MediaService
+import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Bundle
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import com.mohammadkk.myaudioplayer.fragment.SongsFragment
-import com.mohammadkk.myaudioplayer.fragment.AlbumsFragment
-import com.mohammadkk.myaudioplayer.fragment.ArtistsFragment
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mohammadkk.myaudioplayer.databinding.ActivityMainBinding
-import com.mohammadkk.myaudioplayer.fragment.RequireFragment
-import com.mohammadkk.myaudioplayer.viewmodel.SharedPreferenceIntLiveData
-import java.util.ArrayList
+import com.mohammadkk.myaudioplayer.extension.hasPermission
+import com.mohammadkk.myaudioplayer.extension.replaceFragment
+import com.mohammadkk.myaudioplayer.fragment.*
+import com.mohammadkk.myaudioplayer.helper.Constants
+import com.mohammadkk.myaudioplayer.service.MediaService
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private var handlePermission: ActivityResultLauncher<String>? = null
     private lateinit var pref: SharedPreferences
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,63 +34,85 @@ class MainActivity : AppCompatActivity() {
         pref = getSharedPreferences("cache_service", MODE_PRIVATE)
         initView()
         if (savedInstanceState == null) {
-            navigate(SongsFragment())
+            supportFragmentManager.replaceFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
             binding.bottomNavigationMusic.selectedItemId = R.id.navSongs
         }
-        binding.miniTitleMusic.isSelected = true
-        binding.miniMusic.setOnClickListener {
-            if (MediaService.isService) {
-                val playIntent = Intent(this@MainActivity, PlayerActivity::class.java)
-                playIntent.putExtra("positionStart", pref.getInt("play_pos", 0))
-                isRestartActivity = false
-                isFadeActivity = true
-                startActivity(playIntent)
+        handlePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { permission->
+            if (permission) {
+                runView()
+            } else {
+                MaterialAlertDialogBuilder(this).setTitle(R.string.app_name)
+                    .setMessage(R.string.permission_message)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        val detail = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        detail.apply {
+                            addCategory(Intent.CATEGORY_DEFAULT)
+                            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            data = Uri.fromParts("package", packageName, null)
+                        }
+                        startActivity(detail)
+                        isRuntimePermission = true
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        Toast.makeText(applicationContext, getString(R.string.permission_deny), Toast.LENGTH_SHORT).show()
+                        finish()
+                        moveTaskToBack(true)
+                        dialog.dismiss()
+                    }.create().show()
             }
         }
-        binding.miniBtnPlayPause.setOnClickListener {
-            if (MediaService.isService) {
-                Intent(this, NotificationReceiver::class.java).apply {
-                    action = MediaApplication.ACTION_PLAY
-                    sendBroadcast(this)
-                }
-            }
+        if (!hasPermission()) {
+            handlePermission?.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
     }
-
+    private fun runView() {
+        if (getCurrentFragment() != null && getCurrentFragment() is BaseFragment) {
+            (getCurrentFragment() as BaseFragment).runTimeViewLoader()
+        }
+    }
+    private fun getCurrentFragment(): Fragment? {
+        val fragManager = supportFragmentManager
+        for (tag in Constants.TAGS_FRAGMENT) {
+            val fragment = fragManager.findFragmentByTag(tag)
+            if (fragment != null && fragment.isVisible) {
+                return fragment
+            }
+        }
+        return null
+    }
     private fun initView() {
         binding.bottomNavigationMusic.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.navSongs -> {
                     if (binding.bottomNavigationMusic.selectedItemId != R.id.navSongs) {
-                        navigate(SongsFragment())
+                        supportFragmentManager.replaceFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
                     }
                 }
                 R.id.navAlbums ->{
                     if (binding.bottomNavigationMusic.selectedItemId != R.id.navAlbums) {
-                        navigate(AlbumsFragment())
+                        supportFragmentManager.replaceFragment(AlbumsFragment(), Constants.TAG_ALBUMS_FRAGMENT)
                     }
                 }
                 R.id.navArtists -> {
                     if (binding.bottomNavigationMusic.selectedItemId != R.id.navArtists) {
-                        navigate(ArtistsFragment())
+                        supportFragmentManager.replaceFragment(ArtistsFragment(), Constants.TAG_ARTISTS_FRAGMENT)
                     }
                 }
             }
             true
         }
     }
-    private fun navigate(fragment: RequireFragment) {
-        val ft = supportFragmentManager.beginTransaction()
-        ft.replace(R.id.fragmentContainer, fragment).commit()
-    }
     override fun onBackPressed() {
         when (binding.bottomNavigationMusic.selectedItemId) {
             R.id.navArtists -> {
-                navigate(AlbumsFragment())
+                supportFragmentManager.replaceFragment(AlbumsFragment(), Constants.TAG_ALBUMS_FRAGMENT)
                 binding.bottomNavigationMusic.selectedItemId = R.id.navAlbums
             }
             R.id.navAlbums -> {
-                navigate(SongsFragment())
+                supportFragmentManager.replaceFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
                 binding.bottomNavigationMusic.selectedItemId = R.id.navSongs
             }
             else -> super.onBackPressed()
@@ -98,7 +126,7 @@ class MainActivity : AppCompatActivity() {
         if (item.itemId == R.id.exitApp) {
             if (MediaService.isService) {
                 Intent(this, NotificationReceiver::class.java).apply {
-                    action = MediaApplication.ACTION_STOP_SERVICE
+                    action = AudioApp.ACTION_STOP_SERVICE
                     sendBroadcast(this)
                 }
             }
@@ -106,26 +134,23 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-    override fun onResume() {
-        super.onResume()
-        SharedPreferenceIntLiveData(pref, "play_state", R.drawable.ic_pause).observe(this, {
-            binding.miniBtnPlayPause.setImageResource(it)
-        })
-        SharedPreferenceIntLiveData(pref, "play_pos", 0).observe(this, {
-            if (MediaService.mediaList.isNotEmpty()) {
-                val title = MediaService.mediaList[it].title
-                val artist = MediaService.mediaList[it].artist
-                binding.miniTitleMusic.text = String.format("%s - %s", title, artist)
-            }
-        })
-        if (MediaService.isService) {
-            binding.miniMusic.visibility = View.VISIBLE
-        } else {
-            binding.miniMusic.visibility = View.GONE
+    override fun onStart() {
+        super.onStart()
+        val nowPlayerFragment = supportFragmentManager.findFragmentById(R.id.nowPlayerFrag)
+        if (nowPlayerFragment != null && nowPlayerFragment is NowPlayerFragment) {
+            nowPlayerFragment.updateView()
         }
     }
-
+    override fun onResume() {
+        super.onResume()
+        if (isRuntimePermission && hasPermission()) {
+            runView()
+            isRuntimePermission = false
+        }
+        binding.nowPlayerFrag.isVisible = MediaService.isService
+    }
     companion object {
+        private var isRuntimePermission = false
         @JvmField
         var isFadeActivity = false
         @JvmField

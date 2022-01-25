@@ -10,18 +10,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mohammadkk.myaudioplayer.R
 import com.mohammadkk.myaudioplayer.adapter.SongsListAdapter.SongsHolder
 import com.mohammadkk.myaudioplayer.databinding.SongItemsBinding
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
-import com.mohammadkk.myaudioplayer.helper.getAlbumCoverByUri
-import com.mohammadkk.myaudioplayer.helper.inflater
+import com.mohammadkk.myaudioplayer.extension.getAlbumCoverByUri
+import com.mohammadkk.myaudioplayer.extension.inflater
+import com.mohammadkk.myaudioplayer.helper.BuildUtil
 import com.mohammadkk.myaudioplayer.model.Songs
 
 class SongsListAdapter(private val activity: Activity, private val songFiles: List<Songs>) :
     RecyclerView.Adapter<SongsHolder>() {
+    private var onClickItemViewSong: ((position: Int) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongsHolder {
         return SongsHolder(SongItemsBinding.inflate(activity.inflater, parent, false))
     }
     override fun onBindViewHolder(holder: SongsHolder, position: Int) {
-        MusicUtil.createThread {
+        BuildUtil.buildBaseThread {
             val cover = activity.getAlbumCoverByUri(
                 Uri.parse(
                     songFiles[position].albumArt
@@ -46,26 +48,19 @@ class SongsListAdapter(private val activity: Activity, private val songFiles: Li
         holder.itemTitleSong.text = songFiles[position].title
         holder.itemArtistSong.text = songFiles[position].artist
         holder.container.setOnClickListener {
-            onClickItemViewSong(position)
+            onClickItemViewSong?.invoke(position)
         }
     }
-
     fun setOnClickItemViewSong(listener:(position: Int) -> Unit) {
         onClickItemViewSong = listener
     }
-
     override fun getItemCount(): Int {
         return songFiles.size
     }
-
     class SongsHolder(binding: SongItemsBinding) : RecyclerView.ViewHolder(binding.root) {
         val itemCoverSong = binding.itemCoverSong
         val itemTitleSong = binding.itemTitleSong
         val itemArtistSong = binding.itemArtistSong
         val container = binding.root
     }
-    companion object {
-        private lateinit var onClickItemViewSong:(position: Int) -> Unit
-    }
-
 }

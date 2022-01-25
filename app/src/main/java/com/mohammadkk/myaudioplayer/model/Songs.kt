@@ -1,9 +1,9 @@
 package com.mohammadkk.myaudioplayer.model
 
-import android.os.Parcel
 import android.os.Parcelable
-import android.os.Parcelable.Creator
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Songs(
     val id: Long,
     val albumArt: String,
@@ -13,38 +13,31 @@ data class Songs(
     val artist: String,
     val album: String
 ) : Parcelable {
-
-    constructor(source: Parcel) : this(
-        source.readLong(),
-        source.readString() ?: "",
-        source.readInt(),
-        source.readString() ?: "",
-        source.readString() ?: "",
-        source.readString() ?: "",
-        source.readString() ?: ""
-    )
-    override fun describeContents(): Int {
-        return 0
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Songs
+        if (id != other.id) return false
+        if (albumArt != other.albumArt) return false
+        if (duration != other.duration) return false
+        if (path != other.path) return false
+        if (title != other.title) return false
+        if (artist != other.artist) return false
+        if (album != other.album) return false
+        return true
     }
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        dest?.writeLong(this.id)
-        dest?.writeString(this.albumArt)
-        dest?.writeInt(this.duration)
-        dest?.writeString(this.path)
-        dest?.writeString(this.title)
-        dest?.writeString(this.artist)
-        dest?.writeString(this.album)
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + albumArt.hashCode()
+        result = 31 * result + duration
+        result = 31 * result + path.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + artist.hashCode()
+        result = 31 * result + album.hashCode()
+        return result
     }
-    companion object {
-        @Suppress("unused")
-        @JvmField
-        val CREATOR = object : Creator<Songs> {
-            override fun createFromParcel(source: Parcel?): Songs {
-                return Songs(source!!)
-            }
-            override fun newArray(size: Int): Array<Songs?> {
-                return arrayOfNulls(size)
-            }
-        }
+    override fun toString(): String {
+        return "Songs(id: $id, albumArt: $albumArt, duration: $duration," +
+                " path: $path, title: $title, artist: $artist, album: $album)"
     }
 }

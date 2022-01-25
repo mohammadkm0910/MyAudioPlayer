@@ -1,37 +1,33 @@
 package com.mohammadkk.myaudioplayer
 
-import androidx.appcompat.app.AppCompatActivity
-import com.mohammadkk.myaudioplayer.service.CallBackService
-import android.content.ServiceConnection
-import com.mohammadkk.myaudioplayer.service.MediaService
-import com.mohammadkk.myaudioplayer.model.Songs
-import com.google.android.material.imageview.ShapeableImageView
-import android.widget.TextView
-import android.widget.SeekBar
-import android.widget.ImageButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import android.os.Bundle
-import android.content.Intent
-import androidx.core.content.ContextCompat
-import android.widget.SeekBar.OnSeekBarChangeListener
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
-import android.os.Looper
 import android.content.ComponentName
-import android.os.IBinder
-import com.mohammadkk.myaudioplayer.service.MediaService.BindService
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.res.ColorStateList
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.net.Uri
+import android.os.Bundle
 import android.os.Handler
-import android.view.View
+import android.os.IBinder
+import android.os.Looper
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.mohammadkk.myaudioplayer.helper.formatTimeMusic
-import com.mohammadkk.myaudioplayer.helper.getAlbumCoverByUri
-import java.lang.Exception
-import java.lang.IllegalStateException
-import java.util.ArrayList
+import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.imageview.ShapeableImageView
+import com.mohammadkk.myaudioplayer.extension.formatTimeMusic
+import com.mohammadkk.myaudioplayer.extension.getAlbumCoverByUri
+import com.mohammadkk.myaudioplayer.model.Songs
+import com.mohammadkk.myaudioplayer.service.CallBackService
+import com.mohammadkk.myaudioplayer.service.MediaService
+import com.mohammadkk.myaudioplayer.service.MediaService.BindService
+import java.util.*
 
 class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
     private var mediaService: MediaService? = null
@@ -190,9 +186,7 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
         mediaService = (service as BindService).service
         mediaService!!.setCallBackService(this)
-        val servicePosition = mediaService!!.positionService
-        metaData(servicePosition)
-
+        metaData(musicIndex)
         fabPlayPause.setImageResource(if (mediaService!!.isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
         setMusic()
         setMusicProgress()

@@ -1,26 +1,29 @@
 package com.mohammadkk.myaudioplayer
 
 import android.app.Application
-import android.os.Build
 import android.app.NotificationChannel
-import com.mohammadkk.myaudioplayer.MediaApplication
 import android.app.NotificationManager
+import com.mohammadkk.myaudioplayer.helper.BuildUtil
 
-class MediaApplication : Application() {
+val buildCacheApp: CacheApp by lazy { AudioApp.cacheApp }
+
+class AudioApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        cacheApp = CacheApp(applicationContext)
         createChannelNotification()
     }
     private fun createChannelNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val musicChannel = NotificationChannel(MUSIC_CHANNEL, "music channel", NotificationManager.IMPORTANCE_HIGH)
+        if (BuildUtil.isOreoPlus()) {
+            val musicChannel = NotificationChannel(AUDIO_CHANNEL, "music channel", NotificationManager.IMPORTANCE_HIGH)
             musicChannel.description = "notification controller music"
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(musicChannel)
         }
     }
     companion object {
-        const val MUSIC_CHANNEL = "music action"
+        lateinit var cacheApp: CacheApp
+        const val AUDIO_CHANNEL = "audio action"
         const val ACTION_PREVIOUS = "actionprevious"
         const val ACTION_NEXT = "actionnext"
         const val ACTION_PLAY = "actionplay"
