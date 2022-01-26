@@ -15,7 +15,7 @@ import com.mohammadkk.myaudioplayer.*
 import com.mohammadkk.myaudioplayer.extension.getCoverTrack
 import com.mohammadkk.myaudioplayer.extension.toContentUri
 import com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment
-import com.mohammadkk.myaudioplayer.model.Songs
+import com.mohammadkk.myaudioplayer.model.Track
 import java.io.IOException
 import java.util.*
 
@@ -145,7 +145,7 @@ class MediaService : Service() {
 
     companion object {
         var isService = false
-        var mediaList = ArrayList<Songs>()
+        var mediaList = ArrayList<Track>()
         private var servicePosition = 0
     }
 }

@@ -2,7 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
     <!--reds-->
     <color name="red_50">#FFEBEE</color>
     <color name="red_100">#FFCDD2</color>
@@ -18,7 +17,6 @@
     <color name="red_A200">#FF5252</color>
     <color name="red_A400">#FF1744</color>
     <color name="red_A700">#D50000</color>
-
     <!-- pinks -->
     <color name="pink_50">#FCE4EC</color>
     <color name="pink_100">#F8BBD0</color>
@@ -34,7 +32,6 @@
     <color name="pink_A200">#FF4081</color>
     <color name="pink_A400">#F50057</color>
     <color name="pink_A700">#C51162</color>
-
     <!-- purples -->
     <color name="purple_50">#F3E5F5</color>
     <color name="purple_100">#E1BEE7</color>
@@ -50,7 +47,6 @@
     <color name="purple_A200">#E040FB</color>
     <color name="purple_A400">#D500F9</color>
     <color name="purple_A700">#AA00FF</color>
-
     <!-- deep purples -->
     <color name="deep_purple_50">#EDE7F6</color>
     <color name="deep_purple_100">#D1C4E9</color>
@@ -66,7 +62,6 @@
     <color name="deep_purple_A200">#7C4DFF</color>
     <color name="deep_purple_A400">#651FFF</color>
     <color name="deep_purple_A700">#6200EA</color>
-
     <!-- indigo -->
     <color name="indigo_50">#E8EAF6</color>
     <color name="indigo_100">#C5CAE9</color>
@@ -82,7 +77,6 @@
     <color name="indigo_A200">#536DFE</color>
     <color name="indigo_A400">#3D5AFE</color>
     <color name="indigo_A700">#304FFE</color>
-
     <!--blue-->
     <color name="blue_50">#E3F2FD</color>
     <color name="blue_100">#BBDEFB</color>
@@ -98,7 +92,6 @@
     <color name="blue_A200">#448AFF</color>
     <color name="blue_A400">#2979FF</color>
     <color name="blue_A700">#2962FF</color>
-
     <!-- light blue-->
     <color name="light_blue_50">#E1F5FE</color>
     <color name="light_blue_100">#B3E5FC</color>
@@ -114,7 +107,6 @@
     <color name="light_blue_A200">#40C4FF</color>
     <color name="light_blue_A400">#00B0FF</color>
     <color name="light_blue_A700">#0091EA</color>
-
     <!-- cyan -->
     <color name="cyan_50">#E0F7FA</color>
     <color name="cyan_100">#B2EBF2</color>
@@ -130,7 +122,6 @@
     <color name="cyan_A200">#18FFFF</color>
     <color name="cyan_A400">#00E5FF</color>
     <color name="cyan_A700">#00B8D4</color>
-
     <!-- teal -->
     <color name="teal_50">#E0F2F1</color>
     <color name="teal_100">#B2DFDB</color>
@@ -146,7 +137,6 @@
     <color name="teal_A200">#64FFDA</color>
     <color name="teal_A400">#1DE9B6</color>
     <color name="teal_A700">#00BFA5</color>
-
     <!-- green -->
     <color name="green_50">#E8F5E9</color>
     <color name="green_100">#C8E6C9</color>
@@ -162,7 +152,6 @@
     <color name="green_A200">#69F0AE</color>
     <color name="green_A400">#00E676</color>
     <color name="green_A700">#00C853</color>
-
     <!--light green-->
     <color name="light_green_50">#F1F8E9</color>
     <color name="light_green_100">#DCEDC8</color>
@@ -178,7 +167,6 @@
     <color name="light_green_A200">#B2FF59</color>
     <color name="light_green_A400">#76FF03</color>
     <color name="light_green_A700">#64DD17</color>
-
     <!-- lime-->
     <color name="lime_50">#F9FBE7</color>
     <color name="lime_100">#F0F4C3</color>
@@ -194,7 +182,6 @@
     <color name="lime_A200">#EEFF41</color>
     <color name="lime_A400">#C6FF00</color>
     <color name="lime_A700">#AEEA00</color>
-
     <!--yellow -->
     <color name="yellow_50">#FFFDE7</color>
     <color name="yellow_100">#FFF9C4</color>
@@ -210,7 +197,6 @@
     <color name="yellow_A200">#FFFF00</color>
     <color name="yellow_A400">#FFEA00</color>
     <color name="yellow_A700">#FFD600</color>
-
     <!--amber-->
     <color name="amber_50">#FFF8E1</color>
     <color name="amber_100">#FFECB3</color>
@@ -226,7 +212,6 @@
     <color name="amber_A200">#FFD740</color>
     <color name="amber_A400">#FFC400</color>
     <color name="amber_A700">#FFAB00</color>
-
     <!--orange-->
     <color name="orange_50">#FFF3E0</color>
     <color name="orange_100">#FFE0B2</color>
@@ -242,7 +227,6 @@
     <color name="orange_A200">#FFAB40</color>
     <color name="orange_A400">#FF9100</color>
     <color name="orange_A700">#FF6D00</color>
-
     <!--deep orange-->
     <color name="deep_orange_50">#FBE9A7</color>
     <color name="deep_orange_100">#FFCCBC</color>
@@ -258,7 +242,6 @@
     <color name="deep_orange_A200">#FF6E40</color>
     <color name="deep_orange_A400">#FF3D00</color>
     <color name="deep_orange_A700">#DD2600</color>
-
     <!--brown -->
     <color name="brown_50">#EFEBE9</color>
     <color name="brown_100">#D7CCC8</color>
@@ -270,7 +253,6 @@
     <color name="brown_700">#5D4037</color>
     <color name="brown_800">#4E342E</color>
     <color name="brown_900">#3E2723</color>
-
     <!--grey-->
     <color name="grey_50">#FAFAFA</color>
     <color name="grey_100">#F5F5F5</color>
@@ -282,9 +264,6 @@
     <color name="grey_700">#616161</color>
     <color name="grey_800">#424242</color>
     <color name="grey_900">#212121</color>
-    <color name="black_1000">#000000</color>
-    <color name="white_1000">#ffffff</color>
-
     <!--blue grey-->
     <color name="blue_grey_50">#ECEFF1</color>
     <color name="blue_grey_100">#CFD8DC</color>

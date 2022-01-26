@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.mohammadkk.myaudioplayer.*
 import com.mohammadkk.myaudioplayer.databinding.FragmentNowPlayerBinding
-import com.mohammadkk.myaudioplayer.model.Songs
+import com.mohammadkk.myaudioplayer.model.Track
 import com.mohammadkk.myaudioplayer.service.MediaService
 
 class NowPlayerFragment : Fragment() {
@@ -49,7 +49,7 @@ class NowPlayerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         listener = object : INowPlay {
-            override fun updateNowPlay(icon: Int, songs: Songs) {
+            override fun updateNowPlay(icon: Int, songs: Track) {
                 if (MediaService.mediaList.isNotEmpty()) {
                     binding.tvNowTitle.text = songs.title
                     binding.tvNowArtist.text = songs.artist
@@ -62,6 +62,6 @@ class NowPlayerFragment : Fragment() {
         internal var listener: INowPlay? = null
     }
     interface INowPlay {
-        fun updateNowPlay(icon: Int, songs: Songs)
+        fun updateNowPlay(icon: Int, songs: Track)
     }
 }

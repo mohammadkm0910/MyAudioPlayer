@@ -6,13 +6,15 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
-import com.mohammadkk.myaudioplayer.adapter.SongsListAdapter
+import com.mohammadkk.myaudioplayer.adapter.TracksAdapter
 import com.mohammadkk.myaudioplayer.databinding.ActivityPlayerListBinding
-import com.mohammadkk.myaudioplayer.extension.getAllSongs
+import com.mohammadkk.myaudioplayer.extension.musicUtil
+import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.service.MediaService
 
 class PlayerListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerListBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlayerListBinding.inflate(layoutInflater)
@@ -23,16 +25,22 @@ class PlayerListActivity : AppCompatActivity() {
         displaySongs()
     }
     private fun displaySongs() {
-        val albumId = intent.getLongExtra("album_id", 0)
-        val songs = getAllSongs(albumId)
-        songs.sortWith { o1, o2 -> o1.title.compareTo(o2.title, true) }
-        val songsAdapter = SongsListAdapter(this, songs)
+        val type = intent.getStringExtra(Constants.EXTRA_PAGE_TYPE)
+        val selectedId = intent.getLongExtra(Constants.EXTRA_PAGE_SELECTED_ID, 0L)
+        val tracks = when (type) {
+            "album" -> musicUtil.fetchTracksByAlbumId(selectedId)
+            "artist" -> musicUtil.fetchTracksByArtistId(selectedId)
+            else -> return
+        }
+        tracks.sortWith { o1, o2 -> o1.title.compareTo(o2.title, true) }
+        val songsAdapter = TracksAdapter(this)
+        songsAdapter.updateTrackList(tracks)
         val span = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2
         binding.songsByAlbum.adapter = songsAdapter
-        songsAdapter.setOnClickItemViewSong {
+        songsAdapter.setOnItemClickListener {
             Intent(this, PlayerActivity::class.java).apply {
                 putExtra("positionStart", it)
-                putExtra("songs_list", songs)
+                putExtra("songs_list", tracks)
                 MainActivity.isFadeActivity = false
                 MainActivity.isRestartActivity = true
                 startActivity(this)

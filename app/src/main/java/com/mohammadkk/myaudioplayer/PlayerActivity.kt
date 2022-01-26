@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
 import android.graphics.drawable.AnimatedVectorDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -21,9 +20,9 @@ import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView
+import com.mohammadkk.myaudioplayer.extension.albumIdToArt
 import com.mohammadkk.myaudioplayer.extension.formatTimeMusic
-import com.mohammadkk.myaudioplayer.extension.getAlbumCoverByUri
-import com.mohammadkk.myaudioplayer.model.Songs
+import com.mohammadkk.myaudioplayer.model.Track
 import com.mohammadkk.myaudioplayer.service.CallBackService
 import com.mohammadkk.myaudioplayer.service.MediaService
 import com.mohammadkk.myaudioplayer.service.MediaService.BindService
@@ -33,7 +32,7 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
     private var mediaService: MediaService? = null
     private var currentTime = 0
     private var totalTime = 0
-    private var songsListPlayer = ArrayList<Songs>()
+    private var songsListPlayer = ArrayList<Track>()
     private lateinit var actionTop: Toolbar
     private lateinit var coverMusic: ShapeableImageView
     private lateinit var titleMusic: TextView
@@ -52,7 +51,7 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
         musicIndex = intent.getIntExtra("positionStart", 0)
-        val list: ArrayList<out Songs>? = intent.getParcelableArrayListExtra("songs_list")
+        val list: ArrayList<out Track>? = intent.getParcelableArrayListExtra("songs_list")
         if (list != null) {
             songsListPlayer.addAll(list)
         } else songsListPlayer = MediaService.mediaList
@@ -198,15 +197,16 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
     private fun metaData(pos: Int) {
         titleMusic.text = songsListPlayer[pos].title
         artistMusic.text = songsListPlayer[pos].artist
-        val cover = getAlbumCoverByUri(Uri.parse(songsListPlayer[pos].albumArt))
-        if (cover != null) {
-            coverMusic.setImageBitmap(cover)
-            coverMusic.scaleType = ImageView.ScaleType.CENTER_CROP
-            coverMusic.imageTintList = null
-        } else {
-            coverMusic.setImageResource(R.drawable.ic_songs)
-            coverMusic.scaleType = ImageView.ScaleType.FIT_CENTER
-            coverMusic.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pink_500))
+        songsListPlayer[pos].albumId.albumIdToArt(this) { art ->
+            if (art != null) {
+                coverMusic.setImageBitmap(art)
+                coverMusic.scaleType = ImageView.ScaleType.CENTER_CROP
+                coverMusic.imageTintList = null
+            } else {
+                coverMusic.setImageResource(R.drawable.ic_songs)
+                coverMusic.scaleType = ImageView.ScaleType.FIT_CENTER
+                coverMusic.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pink_500))
+            }
         }
     }
     private fun setDrawableAnimationPlayPause(isPlaying: Boolean) {

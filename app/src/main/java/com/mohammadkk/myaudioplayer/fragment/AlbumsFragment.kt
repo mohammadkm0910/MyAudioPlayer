@@ -5,15 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
 import com.mohammadkk.myaudioplayer.PlayerListActivity
-import com.mohammadkk.myaudioplayer.adapter.AlbumGridAdapter
+import com.mohammadkk.myaudioplayer.adapter.AlbumsAdapter
 import com.mohammadkk.myaudioplayer.databinding.FragmentAlbumsBinding
-import com.mohammadkk.myaudioplayer.extension.getAllAlbum
+import com.mohammadkk.myaudioplayer.helper.Constants
 
 class AlbumsFragment : BaseFragment() {
     private lateinit var binding: FragmentAlbumsBinding
+    private lateinit var adapter: AlbumsAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        adapter = AlbumsAdapter(requireContext())
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAlbumsBinding.inflate(inflater, container, false)
         return binding.root
@@ -21,19 +25,22 @@ class AlbumsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         runTimeViewLoader()
-        val span = if (isPortraitScreen()) 2 else 4
-        binding.albumsGridView.layoutManager = GridLayoutManager(context,span)
+        initializeLayout(binding.albumsGridView, 2)
     }
     override fun runTimeViewLoader() {
-        val albums = requireContext().getAllAlbum()
+        val albums = musicUtil.fetchAllAlbum()
         compareAlbums(albums)
-        val adapter = AlbumGridAdapter(requireActivity(), albums)
-        adapter.setOnClickItemViewAlbum {
-            Intent(context, PlayerListActivity::class.java).apply {
-                putExtra("album_id", albums[it].id)
-                startActivity(this)
-            }
+        adapter.updateAlbumList(albums)
+        adapter.setOnItemClickListener { position ->
+           onItemClickForList(position)
         }
         binding.albumsGridView.adapter = adapter
+    }
+    override fun onItemClickForList(position: Int) {
+        Intent(context, PlayerListActivity::class.java).apply {
+            putExtra(Constants.EXTRA_PAGE_TYPE, "album")
+            putExtra(Constants.EXTRA_PAGE_SELECTED_ID, adapter.getAlbum(position).id)
+            startActivity(this)
+        }
     }
 }

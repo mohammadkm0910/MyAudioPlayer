@@ -8,25 +8,40 @@
     android:foreground="?selectableItemBackground"
     app:cardBackgroundColor="@color/grey_300"
     app:cardCornerRadius="8dp">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/grey_300"
+        android:scaleType="center"
+        app:srcCompat="@drawable/ic_artists"
+        app:tint="@color/purple_500"
+        android:contentDescription="@null"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
         android:orientation="vertical"
-        android:padding="8dp">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="@color/grey_300"
-            android:scaleType="center"
-            app:srcCompat="@drawable/ic_artists"
-            app:tint="@color/purple_500"
-            android:contentDescription="@null" />
+        android:background="@color/deep_purple_A200">
         <TextView
-            android:id="@+id/itemNameArtist"
+            android:id="@+id/tvNameItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textColor="@color/grey_900"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:paddingVertical="2dp"
+            android:paddingHorizontal="8dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+        <TextView
+            android:id="@+id/tvTrackCountItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textSize="16sp"
+            android:textColor="@color/blue_grey_50"
             android:paddingVertical="2dp"
             android:paddingHorizontal="8dp"
             android:maxLines="1"

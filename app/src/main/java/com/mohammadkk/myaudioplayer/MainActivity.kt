@@ -16,8 +16,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mohammadkk.myaudioplayer.databinding.ActivityMainBinding
+import com.mohammadkk.myaudioplayer.extension.changeFragment
 import com.mohammadkk.myaudioplayer.extension.hasPermission
-import com.mohammadkk.myaudioplayer.extension.replaceFragment
 import com.mohammadkk.myaudioplayer.fragment.*
 import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.service.MediaService
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         pref = getSharedPreferences("cache_service", MODE_PRIVATE)
         initView()
         if (savedInstanceState == null) {
-            supportFragmentManager.replaceFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
+            supportFragmentManager.changeFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
             binding.bottomNavigationMusic.selectedItemId = R.id.navSongs
         }
         handlePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { permission->
@@ -87,19 +87,13 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationMusic.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.navSongs -> {
-                    if (binding.bottomNavigationMusic.selectedItemId != R.id.navSongs) {
-                        supportFragmentManager.replaceFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
-                    }
+                    supportFragmentManager.changeFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
                 }
-                R.id.navAlbums ->{
-                    if (binding.bottomNavigationMusic.selectedItemId != R.id.navAlbums) {
-                        supportFragmentManager.replaceFragment(AlbumsFragment(), Constants.TAG_ALBUMS_FRAGMENT)
-                    }
+                R.id.navAlbums -> {
+                    supportFragmentManager.changeFragment(AlbumsFragment(), Constants.TAG_ALBUMS_FRAGMENT)
                 }
                 R.id.navArtists -> {
-                    if (binding.bottomNavigationMusic.selectedItemId != R.id.navArtists) {
-                        supportFragmentManager.replaceFragment(ArtistsFragment(), Constants.TAG_ARTISTS_FRAGMENT)
-                    }
+                    supportFragmentManager.changeFragment(ArtistsFragment(), Constants.TAG_ARTISTS_FRAGMENT)
                 }
             }
             true
@@ -108,11 +102,11 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         when (binding.bottomNavigationMusic.selectedItemId) {
             R.id.navArtists -> {
-                supportFragmentManager.replaceFragment(AlbumsFragment(), Constants.TAG_ALBUMS_FRAGMENT)
+                supportFragmentManager.changeFragment(AlbumsFragment(), Constants.TAG_ALBUMS_FRAGMENT)
                 binding.bottomNavigationMusic.selectedItemId = R.id.navAlbums
             }
             R.id.navAlbums -> {
-                supportFragmentManager.replaceFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
+                supportFragmentManager.changeFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
                 binding.bottomNavigationMusic.selectedItemId = R.id.navSongs
             }
             else -> super.onBackPressed()

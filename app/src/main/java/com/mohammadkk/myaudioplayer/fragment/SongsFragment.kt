@@ -5,47 +5,45 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isFadeActivity
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isRestartActivity
 import com.mohammadkk.myaudioplayer.PlayerActivity
-import com.mohammadkk.myaudioplayer.adapter.SongsListAdapter
+import com.mohammadkk.myaudioplayer.adapter.TracksAdapter
 import com.mohammadkk.myaudioplayer.databinding.FragmentSongsBinding
-import com.mohammadkk.myaudioplayer.extension.getAllAlbum
-import com.mohammadkk.myaudioplayer.extension.getAllSongs
-import com.mohammadkk.myaudioplayer.model.Songs
-import java.util.*
 
 
 class SongsFragment : BaseFragment() {
     private lateinit var binding: FragmentSongsBinding
-    private lateinit var adapter: SongsListAdapter
+    private lateinit var adapter: TracksAdapter
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSongsBinding.inflate(inflater, container, false)
         return binding.root
     }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        adapter = TracksAdapter(requireContext())
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        runTimeViewLoader()
-        binding.songsListView.layoutManager = GridLayoutManager(requireContext(), if (isPortraitScreen()) 1 else 2)
-    }
-
-    override fun runTimeViewLoader() {
-        val tempSongs = ArrayList<Songs>()
-        requireContext().getAllAlbum().forEach {
-            tempSongs.addAll(requireContext().getAllSongs(it.id))
-        }
-        compareSongs(tempSongs)
-        adapter = SongsListAdapter(requireActivity(), tempSongs)
-        adapter.setOnClickItemViewSong {
-            Intent(requireContext(), PlayerActivity::class.java).apply {
-                putExtra("positionStart", it)
-                putExtra("songs_list", tempSongs)
-                isFadeActivity = false
-                isRestartActivity = true
-                startActivity(this)
-            }
-        }
+        initializeLayout(binding.songsListView)
         binding.songsListView.adapter = adapter
+        runTimeViewLoader()
+    }
+    override fun runTimeViewLoader() {
+        val tracks = musicUtil.fetchAllTracks()
+        adapter.updateTrackList(tracks)
+        adapter.setOnItemClickListener { position ->
+            onItemClickForList(position)
+        }
+    }
+    override fun onItemClickForList(position: Int) {
+        Intent(requireContext(), PlayerActivity::class.java).apply {
+            putExtra("positionStart", position)
+            putExtra("songs_list", adapter.getTracks())
+            isFadeActivity = false
+            isRestartActivity = true
+            startActivity(this)
+        }
     }
 }
