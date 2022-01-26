@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -17,11 +16,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.mohammadkk.myaudioplayer.extension.albumIdToArt
 import com.mohammadkk.myaudioplayer.extension.formatTimeMusic
+import com.mohammadkk.myaudioplayer.extension.getResDrawable
+import com.mohammadkk.myaudioplayer.extension.setResVectorDrawable
 import com.mohammadkk.myaudioplayer.model.Track
 import com.mohammadkk.myaudioplayer.service.CallBackService
 import com.mohammadkk.myaudioplayer.service.MediaService
@@ -32,7 +32,7 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
     private var mediaService: MediaService? = null
     private var currentTime = 0
     private var totalTime = 0
-    private var songsListPlayer = ArrayList<Track>()
+    private val songsListPlayer = ArrayList<Track>()
     private lateinit var actionTop: Toolbar
     private lateinit var coverMusic: ShapeableImageView
     private lateinit var titleMusic: TextView
@@ -52,13 +52,11 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
         }
         musicIndex = intent.getIntExtra("positionStart", 0)
         val list: ArrayList<out Track>? = intent.getParcelableArrayListExtra("songs_list")
-        if (list != null) {
-            songsListPlayer.addAll(list)
-        } else songsListPlayer = MediaService.mediaList
+        songsListPlayer.clear()
+        list?.also { songsListPlayer.addAll(it) } ?: songsListPlayer.addAll(MediaService.mediaList)
         MediaService.mediaList = songsListPlayer
         actionTop.setNavigationOnClickListener {  onBackPressed() }
     }
-
     private fun initViewById() {
         actionTop = findViewById(R.id.actionTop)
         coverMusic = findViewById(R.id.coverMusic)
@@ -210,38 +208,10 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
         }
     }
     private fun setDrawableAnimationPlayPause(isPlaying: Boolean) {
-        val playAnimCompat: AnimatedVectorDrawableCompat
-        val playAnim: AnimatedVectorDrawable
         if (isPlaying) {
-            fabPlayPause.setImageDrawable(
-                ContextCompat.getDrawable(
-                    this,
-                    R.drawable.play_to_pause
-                )
-            )
-            val drawable = fabPlayPause.drawable
-            if (drawable is AnimatedVectorDrawableCompat) {
-                playAnimCompat = drawable
-                playAnimCompat.start()
-            } else if (drawable is AnimatedVectorDrawable) {
-                playAnim = drawable
-                playAnim.start()
-            }
+            fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.play_to_pause))
         } else {
-            fabPlayPause.setImageDrawable(
-                ContextCompat.getDrawable(
-                    this,
-                    R.drawable.pause_to_play
-                )
-            )
-            val drawable = fabPlayPause.drawable
-            if (drawable is AnimatedVectorDrawableCompat) {
-                playAnimCompat = drawable
-                playAnimCompat.start()
-            } else if (drawable is AnimatedVectorDrawable) {
-                playAnim = drawable
-                playAnim.start()
-            }
+            fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.pause_to_play))
         }
     }
 

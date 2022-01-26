@@ -32,7 +32,6 @@ class PlayerListActivity : AppCompatActivity() {
             "artist" -> musicUtil.fetchTracksByArtistId(selectedId)
             else -> return
         }
-        tracks.sortWith { o1, o2 -> o1.title.compareTo(o2.title, true) }
         val songsAdapter = TracksAdapter(this)
         songsAdapter.updateTrackList(tracks)
         val span = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2

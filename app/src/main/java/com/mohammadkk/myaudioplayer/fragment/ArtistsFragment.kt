@@ -29,7 +29,6 @@ class ArtistsFragment : BaseFragment() {
     }
     override fun runTimeViewLoader() {
         val artists = musicUtil.fetchAllArtist()
-        compareArtists(artists)
         adapter.updateArtistList(artists)
         adapter.setOnItemClickListener { position ->
             onItemClickForList(position)
