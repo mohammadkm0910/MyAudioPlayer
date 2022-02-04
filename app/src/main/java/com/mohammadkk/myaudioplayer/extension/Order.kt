@@ -5,13 +5,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.mohammadkk.myaudioplayer.R
 import com.mohammadkk.myaudioplayer.fragment.BaseFragment
-import com.mohammadkk.myaudioplayer.helper.BuildUtil
 import com.mohammadkk.myaudioplayer.helper.Constants
+import com.mohammadkk.myaudioplayer.helper.MusicUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,9 +47,7 @@ fun Int.formatTimeMusic(): String {
     }
 }
 fun Long.toContentUri(): Uri {
-    val uri = if (BuildUtil.isQPlus()) {
-        MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-    } else MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    val uri = MusicUtil.EXTERNAL_TRACK_URI
     return ContentUris.withAppendedId(uri, this)
 }
 fun Long.albumIdToArt(context: Context, callback: (art: Bitmap?) -> Unit) {

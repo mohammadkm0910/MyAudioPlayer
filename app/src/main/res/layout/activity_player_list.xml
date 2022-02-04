@@ -15,7 +15,7 @@
         android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/songsByAlbum"
+        android:id="@+id/tracksRV"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/nowPlayerFrag"

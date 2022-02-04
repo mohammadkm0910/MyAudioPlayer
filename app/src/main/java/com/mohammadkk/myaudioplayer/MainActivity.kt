@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
     private fun runView() {
         if (getCurrentFragment() != null && getCurrentFragment() is BaseFragment) {
-            (getCurrentFragment() as BaseFragment).runTimeViewLoader()
+            (getCurrentFragment() as BaseFragment).rescanDevice()
         }
     }
     private fun getCurrentFragment(): Fragment? {

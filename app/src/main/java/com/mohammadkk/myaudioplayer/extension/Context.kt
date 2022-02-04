@@ -11,9 +11,7 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
-import androidx.loader.content.CursorLoader
 import com.mohammadkk.myaudioplayer.helper.BuildUtil
-import com.mohammadkk.myaudioplayer.helper.MusicUtil
 
 fun Context.hasPermission(permission: String =  Manifest.permission.READ_EXTERNAL_STORAGE): Boolean {
     if (BuildUtil.isMarshmallowPlus()) {
@@ -31,19 +29,18 @@ fun Context.queryCursor(
     showError: Boolean = false,
     callback: (cursor: Cursor) -> Unit
 ) {
-    val cursor =
-        CursorLoader(this, uri, projection, selection, selectionArgs, sortOrder).loadInBackground()
-    cursor?.use {
-        try {
+    val cursor = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)
+    try {
+        cursor?.use {
             if (cursor.moveToFirst()) {
                 do {
                     callback(cursor)
                 } while (cursor.moveToNext())
             }
-        } catch (e: Exception) {
-            if (showError) {
-                e.printStackTrace()
-            }
+        }
+    } catch (e: Exception) {
+        if (showError) {
+            e.printStackTrace()
         }
     }
 }
@@ -61,7 +58,6 @@ fun Context.getCoverTrack(uri: Uri): Bitmap? {
     }
     return cover
 }
-val Context.musicUtil: MusicUtil get() = MusicUtil.newInstance(this)
 
 val Context.inflater: LayoutInflater get() = LayoutInflater.from(this)
 

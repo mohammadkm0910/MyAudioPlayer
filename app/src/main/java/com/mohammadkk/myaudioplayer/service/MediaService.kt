@@ -11,6 +11,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.mohammadkk.myaudioplayer.AudioApp
 import com.mohammadkk.myaudioplayer.PlayerActivity
@@ -23,7 +24,7 @@ import com.mohammadkk.myaudioplayer.helper.BuildUtil
 import com.mohammadkk.myaudioplayer.model.Track
 import java.io.IOException
 
-class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
     private var bindService: IBinder = BindService()
     private var mediaPlayer: MediaPlayer? = null
     private var mediaSessionCompat: MediaSessionCompat? = null
@@ -51,7 +52,7 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
     @Throws(IOException::class)
     fun createMediaPlayer(position: Int) {
-        if (position >= 1 && position < mediaList.size) {
+        if (position >= 0 && position < mediaList.size) {
             serviceIndex = position
             buildCacheApp.globalTrackIndexCaller = serviceIndex
             mediaPlayer?.setDataSource(baseContext, mediaList[position].id.toContentUri())
@@ -68,6 +69,21 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     override fun onPrepared(mp: MediaPlayer?) {
         if (mediaPlayer?.isPlaying == false)
             mediaPlayer?.start()
+    }
+    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        val errorList = intArrayOf(
+            MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
+            MediaPlayer.MEDIA_ERROR_UNSUPPORTED,
+            MediaPlayer.MEDIA_ERROR_UNKNOWN,
+            MediaPlayer.MEDIA_ERROR_SERVER_DIED,
+            MediaPlayer.MEDIA_ERROR_IO
+        )
+        for (error in errorList) {
+            if (what == error) {
+                Log.i("error_media_player", "error code: $error, extra: $extra")
+            }
+        }
+        return false
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         serviceIndex = buildCacheApp.globalTrackIndexCaller
@@ -90,6 +106,7 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
         mediaPlayer?.setOnCompletionListener(this)
         mediaPlayer?.setOnPreparedListener(this)
+        mediaPlayer?.setOnErrorListener(this)
         return START_STICKY
     }
     fun reset() {

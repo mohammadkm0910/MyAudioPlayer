@@ -1,6 +1,7 @@
 package com.mohammadkk.myaudioplayer.helper
 
 import android.content.Context
+import android.net.Uri
 import android.provider.MediaStore
 import com.mohammadkk.myaudioplayer.extension.*
 import com.mohammadkk.myaudioplayer.model.Album
@@ -9,10 +10,8 @@ import com.mohammadkk.myaudioplayer.model.Track
 
 class MusicUtil(private val context: Context) {
     fun fetchAllTracks(): ArrayList<Track> {
-        val trackList = arrayListOf<Track>()
-        val uri = if (BuildUtil.isQPlus()) {
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-        } else MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val tracks = arrayListOf<Track>()
+        val uri = EXTERNAL_TRACK_URI
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.ALBUM_ID,
@@ -25,19 +24,19 @@ class MusicUtil(private val context: Context) {
             MediaStore.Audio.Media.ARTIST
         )
         context.queryCursor(uri, projection) { cursor ->
-            val id = cursor.getLongVal(projection[0])
-            val albumId = cursor.getLongVal(projection[1])
-            val artistId = cursor.getLongVal(projection[2])
-            val duration = cursor.getIntVal(projection[3]) / 1000
-            val path = cursor.getStringVal(projection[4])
-            val title = cursor.getStringVal(projection[5])
-            val displayName = cursor.getStringVal(projection[6])
-            val albums = cursor.getStringOrNullVal(projection[7]) ?: ""
-            val artist = cursor.getStringOrNullVal(projection[8]) ?: ""
-            val track = Track(id, albumId, artistId, duration, path, title, displayName, albums, artist)
-            trackList.add(track)
+            val id = cursor.getLongVal(MediaStore.Audio.Media._ID)
+            val albumId = cursor.getLongVal(MediaStore.Audio.Media.ALBUM_ID)
+            val artistId = cursor.getLongVal(MediaStore.Audio.Media.ARTIST_ID)
+            val duration = cursor.getIntVal(MediaStore.Audio.Media.DURATION) / 1000
+            val path = cursor.getStringVal(MediaStore.Audio.Media.DATA)
+            val title = cursor.getStringVal(MediaStore.Audio.Media.TITLE)
+            val displayName = cursor.getStringVal(MediaStore.Audio.Media.DISPLAY_NAME)
+            val album = cursor.getStringOrNullVal(MediaStore.Audio.Media.ALBUM) ?: ""
+            val artist = cursor.getStringOrNullVal(MediaStore.Audio.Media.ARTIST) ?: ""
+            val track = Track(id, albumId, artistId, duration, path, title, displayName, album, artist)
+            tracks.add(track)
         }
-        return trackList
+        return tracks
     }
     fun fetchAllAlbum(): ArrayList<Album> {
         val albumList = arrayListOf<Album>()
@@ -48,9 +47,9 @@ class MusicUtil(private val context: Context) {
             MediaStore.Audio.Albums.NUMBER_OF_SONGS
         )
         context.queryCursor(uri, projection) { cursor ->
-            val id = cursor.getLongVal(projection[0])
-            val name = cursor.getStringOrNullVal(projection[1]) ?: ""
-            val trackCount = cursor.getIntVal(projection[2])
+            val id = cursor.getLongVal(MediaStore.Audio.Albums._ID)
+            val name = cursor.getStringOrNullVal(MediaStore.Audio.Albums.ALBUM) ?: ""
+            val trackCount = cursor.getIntVal(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
             val album = Album(id, name, trackCount)
             albumList.add(album)
         }
@@ -65,29 +64,17 @@ class MusicUtil(private val context: Context) {
             MediaStore.Audio.Artists.NUMBER_OF_TRACKS
         )
         context.queryCursor(uri, projection) { cursor ->
-            val id = cursor.getLongVal(projection[0])
-            val name = cursor.getStringOrNullVal(projection[1]) ?: ""
-            val trackCount = cursor.getIntVal(projection[2])
+            val id = cursor.getLongVal(MediaStore.Audio.Artists._ID)
+            val name = cursor.getStringOrNullVal(MediaStore.Audio.Artists.ARTIST) ?: ""
+            val trackCount = cursor.getIntVal(MediaStore.Audio.Artists.NUMBER_OF_TRACKS)
             val artist = Artist(id, name, trackCount)
             artistList.add(artist)
         }
         return artistList
     }
-    fun fetchTracksByAlbumId(albumId: Long): ArrayList<Track> {
-        val trackList = arrayListOf<Track>()
-        fetchAllTracks().filter { it.albumId == albumId }.forEach { track ->
-            trackList.add(track)
-        }
-        return trackList
-    }
-    fun fetchTracksByArtistId(artistId: Long): ArrayList<Track> {
-        val trackList = arrayListOf<Track>()
-        fetchAllTracks().filter { it.artistId == artistId }.forEach { track ->
-            trackList.add(track)
-        }
-        return trackList
-    }
     companion object {
-        fun newInstance(context: Context) = MusicUtil(context)
+        val EXTERNAL_TRACK_URI: Uri = if (BuildUtil.isQPlus()) {
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        } else MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
     }
 }
