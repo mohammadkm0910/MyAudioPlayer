@@ -33,7 +33,8 @@ class SongsFragment : BaseFragment() {
     }
     override fun runTimeViewLoader() {
         val tracks = musicUtil.fetchAllTracks()
-        adapter.updateTrackList(tracks)
+        adapter.addAll(tracks)
+        adapter.refresh()
         adapter.setOnItemClickListener { position ->
             onItemClickForList(position)
         }
@@ -41,7 +42,7 @@ class SongsFragment : BaseFragment() {
     override fun onItemClickForList(position: Int) {
         Intent(requireContext(), PlayerActivity::class.java).apply {
             buildCacheApp.globalTrackIndexCaller = position
-            buildCacheApp.storeTracks(adapter.getTracks())
+            buildCacheApp.storeTracks(adapter.getAllTracks())
             isFadeActivity = false
             isRestartActivity = true
             startActivity(this)

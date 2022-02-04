@@ -4,14 +4,10 @@ import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.AnimatedVectorDrawable
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mohammadkk.myaudioplayer.R
 import com.mohammadkk.myaudioplayer.fragment.BaseFragment
 import com.mohammadkk.myaudioplayer.helper.BuildUtil
@@ -39,15 +35,6 @@ fun FragmentManager.changeFragment(fragment: BaseFragment, tagFragment: String) 
         .setPrimaryNavigationFragment(current)
         .setReorderingAllowed(true)
         .commitAllowingStateLoss()
-}
-fun FloatingActionButton.setResVectorDrawable(anim: Drawable?) {
-    setImageDrawable(anim)
-    val draw = drawable
-    if (draw is AnimatedVectorDrawableCompat) {
-        draw.start()
-    } else if (draw is AnimatedVectorDrawable) {
-        draw.start()
-    }
 }
 fun Int.formatTimeMusic(): String {
     val seconds = this / 1000

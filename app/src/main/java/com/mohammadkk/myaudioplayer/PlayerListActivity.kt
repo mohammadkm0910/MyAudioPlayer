@@ -33,13 +33,14 @@ class PlayerListActivity : AppCompatActivity() {
             else -> return
         }
         val songsAdapter = TracksAdapter(this)
-        songsAdapter.updateTrackList(tracks)
+        songsAdapter.addAll(tracks)
+        songsAdapter.refresh()
         val span = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2
         binding.songsByAlbum.adapter = songsAdapter
         songsAdapter.setOnItemClickListener {
             Intent(this, PlayerActivity::class.java).apply {
                 buildCacheApp.globalTrackIndexCaller = it
-                buildCacheApp.storeTracks(songsAdapter.getTracks())
+                buildCacheApp.storeTracks(songsAdapter.getAllTracks())
                 MainActivity.isFadeActivity = false
                 MainActivity.isRestartActivity = true
                 startActivity(this)

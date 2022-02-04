@@ -29,7 +29,8 @@ class AlbumsFragment : BaseFragment() {
     }
     override fun runTimeViewLoader() {
         val albums = musicUtil.fetchAllAlbum()
-        adapter.updateAlbumList(albums)
+        adapter.addAll(albums)
+        adapter.refresh()
         adapter.setOnItemClickListener { position ->
            onItemClickForList(position)
         }

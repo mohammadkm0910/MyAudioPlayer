@@ -24,7 +24,7 @@ class MusicUtil(private val context: Context) {
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.ARTIST
         )
-        context.queryCursor(uri, projection, sortOrder = projection[5]) { cursor ->
+        context.queryCursor(uri, projection) { cursor ->
             val id = cursor.getLongVal(projection[0])
             val albumId = cursor.getLongVal(projection[1])
             val artistId = cursor.getLongVal(projection[2])
@@ -47,7 +47,7 @@ class MusicUtil(private val context: Context) {
             MediaStore.Audio.Albums.ALBUM,
             MediaStore.Audio.Albums.NUMBER_OF_SONGS
         )
-        context.queryCursor(uri, projection, sortOrder = projection[1]) { cursor ->
+        context.queryCursor(uri, projection) { cursor ->
             val id = cursor.getLongVal(projection[0])
             val name = cursor.getStringOrNullVal(projection[1]) ?: ""
             val trackCount = cursor.getIntVal(projection[2])
@@ -64,7 +64,7 @@ class MusicUtil(private val context: Context) {
             MediaStore.Audio.Artists.ARTIST,
             MediaStore.Audio.Artists.NUMBER_OF_TRACKS
         )
-        context.queryCursor(uri, projection, sortOrder = projection[1]) { cursor ->
+        context.queryCursor(uri, projection) { cursor ->
             val id = cursor.getLongVal(projection[0])
             val name = cursor.getStringOrNullVal(projection[1]) ?: ""
             val trackCount = cursor.getIntVal(projection[2])

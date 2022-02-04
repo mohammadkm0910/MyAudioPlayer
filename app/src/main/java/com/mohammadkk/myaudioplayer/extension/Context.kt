@@ -7,11 +7,9 @@ import android.content.res.Configuration
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.view.LayoutInflater
-import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.loader.content.CursorLoader
 import com.mohammadkk.myaudioplayer.helper.BuildUtil
@@ -48,9 +46,6 @@ fun Context.queryCursor(
             }
         }
     }
-}
-fun Context.getResDrawable(@DrawableRes id: Int): Drawable? {
-    return ContextCompat.getDrawable(this, id)
 }
 fun Context.getCoverTrack(uri: Uri): Bitmap? {
     var cover: Bitmap? = null

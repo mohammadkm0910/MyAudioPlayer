@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -11,25 +12,25 @@ import android.os.Looper
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.mohammadkk.myaudioplayer.databinding.ActivityPlayerBinding
 import com.mohammadkk.myaudioplayer.extension.albumIdToArt
 import com.mohammadkk.myaudioplayer.extension.formatTimeMusic
-import com.mohammadkk.myaudioplayer.extension.getResDrawable
-import com.mohammadkk.myaudioplayer.extension.setResVectorDrawable
 import com.mohammadkk.myaudioplayer.model.Track
-import com.mohammadkk.myaudioplayer.service.CallBackService
 import com.mohammadkk.myaudioplayer.service.MediaService
 import com.mohammadkk.myaudioplayer.service.MediaService.BindService
+import com.mohammadkk.myaudioplayer.service.ServiceListener
 
-class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
+class PlayerActivity : AppCompatActivity(), ServiceListener, ServiceConnection {
     private lateinit var binding: ActivityPlayerBinding
     private var mediaService: MediaService? = null
-    private var musicIndex = 0
+    private var currentIndex = 0
     private var currentTime = 0
     private var totalTime = 0
-    private val songsListPlayer = ArrayList<Track>()
+    private var tracksPlayer = ArrayList<Track>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,13 +41,11 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
         if (MainActivity.isFadeActivity) {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
-        musicIndex = buildCacheApp.globalTrackIndexCaller
-        val list: ArrayList<out Track>? = buildCacheApp.getStoreTracks()
-        songsListPlayer.clear()
-        if (list != null) {
-            songsListPlayer.addAll(list)
-        } else songsListPlayer.addAll(MediaService.getMediaList())
-        if (musicIndex != -1 && songsListPlayer.isEmpty())
+        buildCacheApp.getStoreTracks().run {
+            tracksPlayer = this ?: MediaService.getMediaList()
+        }
+        currentIndex = buildCacheApp.globalTrackIndexCaller
+        if (currentIndex != -1 && tracksPlayer.isEmpty())
             onBackPressed()
         binding.actionTop.setNavigationOnClickListener {  onBackPressed() }
     }
@@ -81,32 +80,32 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             }
         })
         if (MainActivity.isRestartActivity) {
-            playMusic(musicIndex)
+            playMusic(currentIndex)
             MainActivity.isRestartActivity = false
         }
         setCountTitle()
-        binding.btnPreviousTrack.setOnClickListener { setPrevMusic() }
-        binding.btnNextTrack.setOnClickListener { setNextMusic() }
-        binding.fabPlayPause.setOnClickListener { setPlayPauseMusic() }
+        binding.btnPreviousTrack.setOnClickListener { onPreviousTrack() }
+        binding.btnNextTrack.setOnClickListener { onNextTrack() }
+        binding.fabPlayPause.setOnClickListener { onPlayPauseTrack() }
     }
     private fun playMusic(pos: Int) {
         try {
             mediaService!!.reset()
             mediaService!!.createMediaPlayer(pos)
-            mediaService!!.prepare()
-            mediaService!!.start()
+            mediaService!!.setDefaultAudioStream()
+            mediaService!!.prepareAsync()
+            setMetaData()
             setCountTitle()
-            setDrawableAnimationPlayPause(true)
-            metaData(pos)
+            setImageAnimatedVector(R.drawable.play_to_pause)
             mediaService!!.showNotification(R.drawable.ic_pause)
-            musicIndex = pos
+            currentIndex = pos
         } catch (e: Exception) {
             e.printStackTrace()
         }
         setMusicProgress()
     }
     private fun setCountTitle() {
-        binding.tvCountTrack.text = String.format("%s/%s", musicIndex + 1, songsListPlayer.size)
+        binding.tvCountTrack.text = String.format("%s/%s", currentIndex + 1, tracksPlayer.size)
     }
     private fun setMusicProgress() {
         currentTime = mediaService!!.currentPosition
@@ -128,48 +127,52 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             }
         })
     }
-    override fun setPrevMusic() {
-        if (musicIndex > 0) {
-            musicIndex--
+    override fun onPreviousTrack() {
+        if (currentIndex > 0) {
+            currentIndex--
         } else {
-            musicIndex = songsListPlayer.size - 1
+            currentIndex = tracksPlayer.size - 1
         }
-        playMusic(musicIndex)
+        playMusic(currentIndex)
     }
-    override fun setNextMusic() {
-        if (musicIndex < songsListPlayer.size - 1) {
-            musicIndex++
-        } else musicIndex = 0
-        playMusic(musicIndex)
-    }
-    override fun setPlayPauseMusic() {
+    override fun onPlayPauseTrack() {
         if (mediaService!!.isPlaying) {
             mediaService!!.pause()
             mediaService!!.showNotification(R.drawable.ic_play)
-            setDrawableAnimationPlayPause(false)
+            setImageAnimatedVector(R.drawable.pause_to_play)
         } else {
             mediaService!!.start()
             mediaService!!.showNotification(R.drawable.ic_pause)
-            setDrawableAnimationPlayPause(true)
+            setImageAnimatedVector(R.drawable.play_to_pause)
         }
+    }
+    override fun onNextTrack() {
+        if (currentIndex < tracksPlayer.size - 1) {
+            currentIndex++
+        } else currentIndex = 0
+        playMusic(currentIndex)
     }
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
         mediaService = (service as BindService).service
-        mediaService!!.setCallBackService(this)
-        metaData(musicIndex)
-        binding.fabPlayPause.setImageResource(if (mediaService!!.isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+        mediaService!!.setOnListenerService(this)
+        setMetaData()
+        if (mediaService!!.isPlaying) {
+            setImageAnimatedVector(R.drawable.play_to_pause)
+        } else {
+            setImageAnimatedVector(R.drawable.pause_to_play)
+        }
         setMusic()
         setMusicProgress()
     }
-
     override fun onServiceDisconnected(name: ComponentName) {
         mediaService = null
     }
-    private fun metaData(pos: Int) {
-        binding.tvTitleTrack.text = songsListPlayer[pos].title
-        binding.tvAlbumTrack.text = songsListPlayer[pos].album
-        binding.tvArtistTrack.text = songsListPlayer[pos].artist
-        songsListPlayer[pos].albumId.albumIdToArt(this) { art ->
+    private fun setMetaData() {
+        val track = tracksPlayer[currentIndex]
+        binding.tvTitleTrack.text = track.title
+        binding.tvAlbumTrack.text = track.album
+        binding.tvArtistTrack.text = track.artist
+        track.albumId.albumIdToArt(this) { art ->
             if (art != null) {
                 binding.trackImage.setImageBitmap(art)
                 binding.trackImage.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -181,11 +184,13 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             }
         }
     }
-    private fun setDrawableAnimationPlayPause(isPlaying: Boolean) {
-        if (isPlaying) {
-            binding.fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.play_to_pause))
-        } else {
-            binding.fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.pause_to_play))
+    private fun setImageAnimatedVector(@DrawableRes id: Int) {
+        binding.fabPlayPause.setImageDrawable(ContextCompat.getDrawable(this, id))
+        val drawable = binding.fabPlayPause.drawable
+        if (drawable is AnimatedVectorDrawableCompat) {
+            drawable.start()
+        } else if (drawable is AnimatedVectorDrawable) {
+            drawable.start()
         }
     }
 }
