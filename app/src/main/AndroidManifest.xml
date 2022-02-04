@@ -42,7 +42,7 @@
         </activity>
 
         <receiver
-            android:name=".NotificationReceiver"
+            android:name=".service.NotificationReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

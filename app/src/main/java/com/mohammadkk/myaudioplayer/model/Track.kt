@@ -1,9 +1,7 @@
 package com.mohammadkk.myaudioplayer.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 
-@Parcelize
 data class Track(
     val id: Long,
     val albumId: Long,
@@ -14,7 +12,7 @@ data class Track(
     val displayName: String,
     val album: String,
     val artist: String,
-) : Parcelable {
+) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

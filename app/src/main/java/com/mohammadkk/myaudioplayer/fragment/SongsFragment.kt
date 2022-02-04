@@ -9,6 +9,7 @@ import com.mohammadkk.myaudioplayer.MainActivity.Companion.isFadeActivity
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isRestartActivity
 import com.mohammadkk.myaudioplayer.PlayerActivity
 import com.mohammadkk.myaudioplayer.adapter.TracksAdapter
+import com.mohammadkk.myaudioplayer.buildCacheApp
 import com.mohammadkk.myaudioplayer.databinding.FragmentSongsBinding
 
 
@@ -39,8 +40,8 @@ class SongsFragment : BaseFragment() {
     }
     override fun onItemClickForList(position: Int) {
         Intent(requireContext(), PlayerActivity::class.java).apply {
-            putExtra("positionStart", position)
-            putExtra("songs_list", adapter.getTracks())
+            buildCacheApp.globalTrackIndexCaller = position
+            buildCacheApp.storeTracks(adapter.getTracks())
             isFadeActivity = false
             isRestartActivity = true
             startActivity(this)

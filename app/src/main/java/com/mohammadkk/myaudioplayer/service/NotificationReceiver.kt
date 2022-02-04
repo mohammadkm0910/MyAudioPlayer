@@ -1,10 +1,10 @@
-package com.mohammadkk.myaudioplayer
+package com.mohammadkk.myaudioplayer.service
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.mohammadkk.myaudioplayer.service.MediaService
+import com.mohammadkk.myaudioplayer.AudioApp
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

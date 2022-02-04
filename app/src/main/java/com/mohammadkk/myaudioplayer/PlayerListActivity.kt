@@ -38,8 +38,8 @@ class PlayerListActivity : AppCompatActivity() {
         binding.songsByAlbum.adapter = songsAdapter
         songsAdapter.setOnItemClickListener {
             Intent(this, PlayerActivity::class.java).apply {
-                putExtra("positionStart", it)
-                putExtra("songs_list", tracks)
+                buildCacheApp.globalTrackIndexCaller = it
+                buildCacheApp.storeTracks(songsAdapter.getTracks())
                 MainActivity.isFadeActivity = false
                 MainActivity.isRestartActivity = true
                 startActivity(this)
@@ -49,7 +49,7 @@ class PlayerListActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
-        binding.nowPlayerFrag.isVisible = MediaService.isService
+        binding.nowPlayerFrag.isVisible = MediaService.getIsExists()
     }
     override fun onPause() {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)

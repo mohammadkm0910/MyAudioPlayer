@@ -12,6 +12,11 @@
         <entry key="..\:/Users/mohammad/AndroidStudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_songs.xml" value="0.1" />
         <entry key="..\:/Users/mohammad/AndroidStudioProjects/MyAudioPlayer/app/src/main/res/layout/music_mini_bottom_bar.xml" value="0.34479166666666666" />
         <entry key="..\:/Users/mohammad/AndroidStudioProjects/MyAudioPlayer/app/src/main/res/layout/song_items.xml" value="0.2935185185185185" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/drawable/background_list_items_one.xml" value="0.1" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/drawable/bg_vertical_list.xml" value="0.1" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/drawable/ic_play.xml" value="0.1955" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/drawable/ic_skip_previous.xml" value="0.1955" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/drawable/ic_songs.xml" value="0.1955" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout-land/activity_player.xml" value="0.30687830687830686" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/activity_main.xml" value="0.2128623188405797" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/activity_player.xml" value="0.3625" />
@@ -20,14 +25,16 @@
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/album_items.xml" value="0.3625" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/artist_items.xml" value="0.2726449275362319" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_albums.xml" value="0.2128623188405797" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_artists.xml" value="0.1762917933130699" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_now_player.xml" value="0.33" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_songs.xml" value="0.1762917933130699" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/song_items.xml" value="0.17603850050658562" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/track_items.xml" value="0.33" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/menu/main_menu.xml" value="0.31666666666666665" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_16_PREVIEW" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

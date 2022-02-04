@@ -1,58 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
+    android:layout_height="66dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="10dp"
+    android:layout_marginHorizontal="10dp"
     android:paddingHorizontal="8dp"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginTop="8dp"
-    android:background="@drawable/bg_vertical_list">
+    android:background="@drawable/background_list_items_one">
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/imgCoverItem"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:background="@color/grey_300"
-        app:srcCompat="@drawable/ic_songs"
+        android:id="@+id/imgArtTrackItem"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
         app:shapeAppearanceOverlay="@style/Theme.MyMediaPlayer.ImageRounded"
-        android:scaleType="centerInside"/>
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="start"
-        android:layout_marginHorizontal="8dp">
-        <TextView
-            android:id="@+id/tvTitleItem"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:gravity="center_vertical"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            android:textStyle="bold"
-            android:textColor="@color/grey_900"
-            android:maxLines="1"
-            android:ellipsize="end"
-            tools:text="TrackName"/>
-        <TextView
-            android:id="@+id/tvAlbumItem"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:gravity="center_vertical"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-            android:textColor="@color/grey_900"
-            android:maxLines="1"
-            android:ellipsize="end"
-            tools:text="Album Name"/>
-    </LinearLayout>
+        android:background="@drawable/background_gradient_small"
+        android:scaleType="center"/>
     <TextView
-        android:id="@+id/tvDurationItem"
+        android:id="@+id/tvTitleTrackItem"
+        android:layout_width="wrap_content"
+        android:layout_height="33dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginHorizontal="8dp"
+        android:layout_toStartOf="@+id/tvDurationTrackItem"
+        android:layout_toEndOf="@+id/imgArtTrackItem"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/grey_900"
+        android:maxLines="1"
+        android:textDirection="locale"/>
+    <TextView
+        android:id="@+id/tvAlbumTrackItem"
+        android:layout_width="wrap_content"
+        android:layout_height="33dp"
+        android:layout_below="@+id/tvTitleTrackItem"
+        android:layout_toEndOf="@+id/imgArtTrackItem"
+        android:layout_toStartOf="@+id/tvDurationTrackItem"
+        android:textDirection="locale"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="8dp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        android:textSize="16sp"
+        android:textColor="@color/grey_800"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+    <TextView
+        android:id="@+id/tvDurationTrackItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingVertical="2dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-        android:textColor="@color/grey_800"
-        tools:text="04:35" />
-</LinearLayout>
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:textSize="14sp"
+        android:textColor="@color/blue_grey_900"
+        android:paddingVertical="2dp"/>
+</RelativeLayout>

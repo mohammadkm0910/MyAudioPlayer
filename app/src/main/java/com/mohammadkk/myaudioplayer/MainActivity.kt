@@ -21,6 +21,7 @@ import com.mohammadkk.myaudioplayer.extension.hasPermission
 import com.mohammadkk.myaudioplayer.fragment.*
 import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.service.MediaService
+import com.mohammadkk.myaudioplayer.service.NotificationReceiver
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.exitApp) {
-            if (MediaService.isService) {
+            if (MediaService.getIsExists()) {
                 Intent(this, NotificationReceiver::class.java).apply {
                     action = AudioApp.ACTION_STOP_SERVICE
                     sendBroadcast(this)
@@ -141,7 +142,7 @@ class MainActivity : AppCompatActivity() {
             runView()
             isRuntimePermission = false
         }
-        binding.nowPlayerFrag.isVisible = MediaService.isService
+        binding.nowPlayerFrag.isVisible = MediaService.getIsExists()
     }
     companion object {
         private var isRuntimePermission = false

@@ -18,10 +18,10 @@ class TracksAdapter(private val context: Context) : RecyclerView.Adapter<TracksA
     private var onItemClick: ((position: Int) -> Unit)? = null
 
     class TracksHolder(binding: TrackItemsBinding) : RecyclerView.ViewHolder(binding.root) {
-        val trackImage = binding.imgCoverItem
-        val trackTitle = binding.tvTitleItem
-        val trackAlbum = binding.tvAlbumItem
-        val trackDuration = binding.tvDurationItem
+        val trackImage = binding.imgArtTrackItem
+        val trackTitle = binding.tvTitleTrackItem
+        val trackAlbum = binding.tvAlbumTrackItem
+        val trackDuration = binding.tvDurationTrackItem
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksHolder {
         return TracksHolder(TrackItemsBinding.inflate(context.inflater, parent, false))
@@ -35,10 +35,10 @@ class TracksAdapter(private val context: Context) : RecyclerView.Adapter<TracksA
                 holder.trackImage.imageTintList = null
             } else {
                 holder.trackImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                holder.trackImage.setImageResource(R.drawable.ic_songs)
+                holder.trackImage.setImageResource(R.drawable.ic_track)
                 holder.trackImage.imageTintList = ColorStateList.valueOf(
                     ContextCompat.getColor(
-                        context, R.color.pink_500
+                        context, R.color.cyan_50
                     )
                 )
             }

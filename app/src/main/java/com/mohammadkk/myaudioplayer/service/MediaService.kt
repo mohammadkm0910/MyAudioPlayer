@@ -11,51 +11,61 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
-import com.mohammadkk.myaudioplayer.*
+import com.mohammadkk.myaudioplayer.AudioApp
+import com.mohammadkk.myaudioplayer.PlayerActivity
+import com.mohammadkk.myaudioplayer.R
+import com.mohammadkk.myaudioplayer.buildCacheApp
 import com.mohammadkk.myaudioplayer.extension.getCoverTrack
 import com.mohammadkk.myaudioplayer.extension.toContentUri
 import com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment
 import com.mohammadkk.myaudioplayer.model.Track
 import java.io.IOException
-import java.util.*
 
 class MediaService : Service() {
     private var bindService: IBinder = BindService()
     private var mediaPlayer: MediaPlayer? = null
     private var mediaSessionCompat: MediaSessionCompat? = null
     private var callBackService: CallBackService? = null
+
+    private var servicePosition = 0
+
     override fun onCreate() {
         super.onCreate()
         mediaPlayer = MediaPlayer()
         mediaSessionCompat = MediaSessionCompat(baseContext, "My Media Player")
-        isService = true
+        isExists = true
     }
-
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer!!.stop()
-        isService = false
+        mediaPlayer!!.release()
+        isExists = false
+        buildCacheApp.requirClear()
     }
-
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        var pos = buildCacheApp.positionService
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val list = buildCacheApp.getStoreTracks()
+        if (list != null) {
+            mediaList.clear()
+            mediaList.addAll(list)
+        } else stopSelf()
+        var pos = buildCacheApp.globalTrackIndexCaller
         pos = if (pos <= mediaList.size && pos >= 0) pos else 0
-        val actionName = intent.getStringExtra("actionName")
-        servicePosition = intent.getIntExtra("index_service", pos)
+        servicePosition = pos
+        val actionName = intent?.getStringExtra("actionName")
         mediaPlayer!!.setOnCompletionListener {
             callBackService!!.setNextMusic()
         }
-        if (actionName != null) {
-            when (actionName) {
-                "playPause" -> callBackService!!.setPlayPauseMusic()
-                "next" -> callBackService!!.setNextMusic()
-                "previous" -> callBackService!!.setPrevMusic()
-                "stopService" -> stopSelf()
+        when (actionName ?: "") {
+            "playPause" -> callBackService!!.setPlayPauseMusic()
+            "next" -> callBackService!!.setNextMusic()
+            "previous" -> callBackService!!.setPrevMusic()
+            "stopService" -> {
+                stopForeground(true)
+                stopSelf()
             }
         }
         return START_STICKY
     }
-
     fun setCallBackService(callBackService: CallBackService?) {
         this.callBackService = callBackService
     }
@@ -68,6 +78,7 @@ class MediaService : Service() {
     fun createMediaPlayer(position: Int) {
         mediaPlayer!!.setDataSource(this, mediaList[servicePosition].id.toContentUri())
         servicePosition = position
+        buildCacheApp.globalTrackIndexCaller = position
         val builder = MediaMetadataCompat.Builder()
             .putString(MediaMetadata.METADATA_KEY_TITLE, mediaList[servicePosition].title)
             .putString(
@@ -110,16 +121,17 @@ class MediaService : Service() {
         val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val thumbInit = baseContext.getCoverTrack(mediaList[servicePosition].id.toContentUri())
         val thumb = thumbInit ?: BitmapFactory.decodeResource(resources, R.drawable.ic_music_large)
-        buildCacheApp.iconPausedService = playImg
-        buildCacheApp.positionService = servicePosition
+        buildCacheApp.iconPausedCaller = playImg
+        buildCacheApp.titleTextCaller = mediaList[servicePosition].title
+        buildCacheApp.artistTextCaller = mediaList[servicePosition].artist
         NowPlayerFragment.listener?.updateNowPlay(playImg, mediaList[servicePosition])
         val notification = NotificationCompat.Builder(this, AudioApp.AUDIO_CHANNEL)
-            .setSmallIcon(R.drawable.ic_songs)
+            .setSmallIcon(R.drawable.ic_track)
             .setLargeIcon(thumb)
             .setContentTitle(mediaList[servicePosition].title)
             .setContentText(mediaList[servicePosition].artist)
             .setContentIntent(contentIntent)
-            .addAction(R.drawable.ic_skip_prev, "Previous", prevPending)
+            .addAction(R.drawable.ic_skip_previous, "Previous", prevPending)
             .addAction(playImg, "Pause", pausePending)
             .addAction(R.drawable.ic_skip_next, "Next", nextPending)
             .setStyle(
@@ -134,7 +146,7 @@ class MediaService : Service() {
         startForeground(1, notification)
     }
 
-    override fun onBind(intent: Intent): IBinder? {
+    override fun onBind(intent: Intent): IBinder {
         return bindService
     }
 
@@ -142,10 +154,11 @@ class MediaService : Service() {
         val service: MediaService
             get() = this@MediaService
     }
-
     companion object {
-        var isService = false
-        var mediaList = ArrayList<Track>()
-        private var servicePosition = 0
+        private var isExists: Boolean = false
+        fun getIsExists() = isExists
+        private var mediaList = ArrayList<Track>()
+        @JvmName("getMediaList1")
+        fun getMediaList(): ArrayList<Track> = mediaList
     }
 }

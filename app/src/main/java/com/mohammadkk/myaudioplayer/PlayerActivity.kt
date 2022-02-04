@@ -8,16 +8,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.imageview.ShapeableImageView
+import com.mohammadkk.myaudioplayer.databinding.ActivityPlayerBinding
 import com.mohammadkk.myaudioplayer.extension.albumIdToArt
 import com.mohammadkk.myaudioplayer.extension.formatTimeMusic
 import com.mohammadkk.myaudioplayer.extension.getResDrawable
@@ -26,53 +22,37 @@ import com.mohammadkk.myaudioplayer.model.Track
 import com.mohammadkk.myaudioplayer.service.CallBackService
 import com.mohammadkk.myaudioplayer.service.MediaService
 import com.mohammadkk.myaudioplayer.service.MediaService.BindService
-import java.util.*
 
 class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
+    private lateinit var binding: ActivityPlayerBinding
     private var mediaService: MediaService? = null
+    private var musicIndex = 0
     private var currentTime = 0
     private var totalTime = 0
     private val songsListPlayer = ArrayList<Track>()
-    private lateinit var actionTop: Toolbar
-    private lateinit var coverMusic: ShapeableImageView
-    private lateinit var titleMusic: TextView
-    private lateinit var artistMusic: TextView
-    private lateinit var durationPlayedMusic: TextView
-    private lateinit var totalDurationMusic: TextView
-    private lateinit var sliderMusic: SeekBar
-    private lateinit var btnPrevMusic: ImageButton
-    private lateinit var btnNextMusic: ImageButton
-    private lateinit var fabPlayPause: FloatingActionButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_player)
-        initViewById()
+        binding = ActivityPlayerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.actionTop)
+        supportActionBar?.title = ""
         if (MainActivity.isFadeActivity) {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }
-        musicIndex = intent.getIntExtra("positionStart", 0)
-        val list: ArrayList<out Track>? = intent.getParcelableArrayListExtra("songs_list")
+        musicIndex = buildCacheApp.globalTrackIndexCaller
+        val list: ArrayList<out Track>? = buildCacheApp.getStoreTracks()
         songsListPlayer.clear()
-        list?.also { songsListPlayer.addAll(it) } ?: songsListPlayer.addAll(MediaService.mediaList)
-        MediaService.mediaList = songsListPlayer
-        actionTop.setNavigationOnClickListener {  onBackPressed() }
-    }
-    private fun initViewById() {
-        actionTop = findViewById(R.id.actionTop)
-        coverMusic = findViewById(R.id.coverMusic)
-        titleMusic = findViewById(R.id.titleMusic)
-        artistMusic = findViewById(R.id.artistMusic)
-        sliderMusic = findViewById(R.id.sliderMusic)
-        durationPlayedMusic = findViewById(R.id.durationPlayedMusic)
-        totalDurationMusic = findViewById(R.id.totalDurationMusic)
-        btnPrevMusic = findViewById(R.id.btnPrevMusic)
-        fabPlayPause = findViewById(R.id.fabPlayPause)
-        btnNextMusic = findViewById(R.id.btnNextMusic)
+        if (list != null) {
+            songsListPlayer.addAll(list)
+        } else songsListPlayer.addAll(MediaService.getMediaList())
+        if (musicIndex != -1 && songsListPlayer.isEmpty())
+            onBackPressed()
+        binding.actionTop.setNavigationOnClickListener {  onBackPressed() }
     }
     override fun onStart() {
         super.onStart()
         val intentService = Intent(this, MediaService::class.java)
-        intentService.putExtra("index_service", musicIndex)
         ContextCompat.startForegroundService(this, intentService)
         bindService(intentService, this, BIND_AUTO_CREATE)
     }
@@ -87,11 +67,11 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
         unbindService(this)
     }
     private fun setMusic() {
-        sliderMusic.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+        binding.trackSlider.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     currentTime = progress
-                    durationPlayedMusic.text = currentTime.formatTimeMusic()
+                    binding.tvPlayedTimeTrack.text = currentTime.formatTimeMusic()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -104,17 +84,18 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             playMusic(musicIndex)
             MainActivity.isRestartActivity = false
         }
-        changePrevMusic()
-        changeNextMusic()
-        changePlayPauseMusic()
+        setCountTitle()
+        binding.btnPreviousTrack.setOnClickListener { setPrevMusic() }
+        binding.btnNextTrack.setOnClickListener { setNextMusic() }
+        binding.fabPlayPause.setOnClickListener { setPlayPauseMusic() }
     }
-
     private fun playMusic(pos: Int) {
         try {
             mediaService!!.reset()
             mediaService!!.createMediaPlayer(pos)
             mediaService!!.prepare()
             mediaService!!.start()
+            setCountTitle()
             setDrawableAnimationPlayPause(true)
             metaData(pos)
             mediaService!!.showNotification(R.drawable.ic_pause)
@@ -124,34 +105,28 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
         }
         setMusicProgress()
     }
+    private fun setCountTitle() {
+        binding.tvCountTrack.text = String.format("%s/%s", musicIndex + 1, songsListPlayer.size)
+    }
     private fun setMusicProgress() {
         currentTime = mediaService!!.currentPosition
         totalTime = mediaService!!.duration
-        totalDurationMusic.text = totalTime.formatTimeMusic()
-        durationPlayedMusic.text = currentTime.formatTimeMusic()
-        sliderMusic.max = totalTime
+        binding.tvTotalTimeTrack.text = totalTime.formatTimeMusic()
+        binding.tvPlayedTimeTrack.text = currentTime.formatTimeMusic()
+        binding.trackSlider.max = totalTime
         val handle = Handler(Looper.getMainLooper())
         runOnUiThread(object : Runnable {
             override fun run() {
                 try {
                     currentTime = mediaService!!.currentPosition
-                    durationPlayedMusic.text = currentTime.formatTimeMusic()
-                    sliderMusic.progress = currentTime
+                    binding.tvPlayedTimeTrack.text = currentTime.formatTimeMusic()
+                    binding.trackSlider.progress = currentTime
                     handle.postDelayed(this, 1000)
                 } catch (ed: IllegalStateException) {
                     ed.printStackTrace()
                 }
             }
         })
-    }
-    private fun changePrevMusic() {
-        btnPrevMusic.setOnClickListener { setPrevMusic() }
-    }
-    private fun changeNextMusic() {
-        btnNextMusic.setOnClickListener { setNextMusic() }
-    }
-    private fun changePlayPauseMusic() {
-        fabPlayPause.setOnClickListener { setPlayPauseMusic() }
     }
     override fun setPrevMusic() {
         if (musicIndex > 0) {
@@ -160,14 +135,13 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             musicIndex = songsListPlayer.size - 1
         }
         playMusic(musicIndex)
-
     }
-
     override fun setNextMusic() {
-        if (musicIndex < songsListPlayer.size - 1) musicIndex++ else musicIndex = 0
+        if (musicIndex < songsListPlayer.size - 1) {
+            musicIndex++
+        } else musicIndex = 0
         playMusic(musicIndex)
     }
-
     override fun setPlayPauseMusic() {
         if (mediaService!!.isPlaying) {
             mediaService!!.pause()
@@ -179,12 +153,11 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
             setDrawableAnimationPlayPause(true)
         }
     }
-
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
         mediaService = (service as BindService).service
         mediaService!!.setCallBackService(this)
         metaData(musicIndex)
-        fabPlayPause.setImageResource(if (mediaService!!.isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+        binding.fabPlayPause.setImageResource(if (mediaService!!.isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
         setMusic()
         setMusicProgress()
     }
@@ -193,29 +166,26 @@ class PlayerActivity : AppCompatActivity(), CallBackService, ServiceConnection {
         mediaService = null
     }
     private fun metaData(pos: Int) {
-        titleMusic.text = songsListPlayer[pos].title
-        artistMusic.text = songsListPlayer[pos].artist
+        binding.tvTitleTrack.text = songsListPlayer[pos].title
+        binding.tvAlbumTrack.text = songsListPlayer[pos].album
+        binding.tvArtistTrack.text = songsListPlayer[pos].artist
         songsListPlayer[pos].albumId.albumIdToArt(this) { art ->
             if (art != null) {
-                coverMusic.setImageBitmap(art)
-                coverMusic.scaleType = ImageView.ScaleType.CENTER_CROP
-                coverMusic.imageTintList = null
+                binding.trackImage.setImageBitmap(art)
+                binding.trackImage.scaleType = ImageView.ScaleType.CENTER_CROP
+                binding.trackImage.imageTintList = null
             } else {
-                coverMusic.setImageResource(R.drawable.ic_songs)
-                coverMusic.scaleType = ImageView.ScaleType.FIT_CENTER
-                coverMusic.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pink_500))
+                binding.trackImage.setImageResource(R.drawable.ic_track)
+                binding.trackImage.scaleType = ImageView.ScaleType.FIT_CENTER
+                binding.trackImage.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.pink_500))
             }
         }
     }
     private fun setDrawableAnimationPlayPause(isPlaying: Boolean) {
         if (isPlaying) {
-            fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.play_to_pause))
+            binding.fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.play_to_pause))
         } else {
-            fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.pause_to_play))
+            binding.fabPlayPause.setResVectorDrawable(getResDrawable(R.drawable.pause_to_play))
         }
-    }
-
-    companion object {
-        private var musicIndex = 0
     }
 }

@@ -6,10 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.mohammadkk.myaudioplayer.*
+import com.mohammadkk.myaudioplayer.AudioApp
+import com.mohammadkk.myaudioplayer.MainActivity
+import com.mohammadkk.myaudioplayer.PlayerActivity
+import com.mohammadkk.myaudioplayer.buildCacheApp
 import com.mohammadkk.myaudioplayer.databinding.FragmentNowPlayerBinding
 import com.mohammadkk.myaudioplayer.model.Track
 import com.mohammadkk.myaudioplayer.service.MediaService
+import com.mohammadkk.myaudioplayer.service.NotificationReceiver
 
 class NowPlayerFragment : Fragment() {
     private lateinit var binding: FragmentNowPlayerBinding
@@ -22,7 +26,7 @@ class NowPlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         updateView()
         binding.btnNowPlayPause.setOnClickListener {
-            if (MediaService.isService) {
+            if (MediaService.getIsExists()) {
                 Intent(requireContext(), NotificationReceiver::class.java).apply {
                     action = AudioApp.ACTION_PLAY
                     requireContext().sendBroadcast(this)
@@ -30,9 +34,9 @@ class NowPlayerFragment : Fragment() {
             }
         }
         binding.nowPlayer.setOnClickListener {
-            if (MediaService.isService) {
+            if (MediaService.getIsExists()) {
                 val playIntent = Intent(requireContext(), PlayerActivity::class.java)
-                playIntent.putExtra("positionStart", buildCacheApp.positionService)
+                playIntent.putExtra("positionStart", buildCacheApp.globalTrackIndexCaller)
                 MainActivity.isRestartActivity = false
                 MainActivity.isFadeActivity = true
                 startActivity(playIntent)
@@ -40,17 +44,15 @@ class NowPlayerFragment : Fragment() {
         }
     }
     internal fun updateView() {
-        if (MediaService.mediaList.isNotEmpty()) {
-            binding.tvNowTitle.text = MediaService.mediaList[buildCacheApp.positionService].title
-            binding.tvNowArtist.text = MediaService.mediaList[buildCacheApp.positionService].artist
-            binding.btnNowPlayPause.setImageResource(buildCacheApp.iconPausedService)
-        }
+        binding.tvNowTitle.text = buildCacheApp.titleTextCaller
+        binding.tvNowArtist.text = buildCacheApp.artistTextCaller
+        binding.btnNowPlayPause.setImageResource(buildCacheApp.iconPausedCaller)
     }
     override fun onResume() {
         super.onResume()
         listener = object : INowPlay {
             override fun updateNowPlay(icon: Int, songs: Track) {
-                if (MediaService.mediaList.isNotEmpty()) {
+                if (MediaService.getMediaList().isNotEmpty()) {
                     binding.tvNowTitle.text = songs.title
                     binding.tvNowArtist.text = songs.artist
                     binding.btnNowPlayPause.setImageResource(icon)
