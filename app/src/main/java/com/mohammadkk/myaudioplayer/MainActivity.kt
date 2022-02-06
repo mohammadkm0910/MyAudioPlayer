@@ -1,38 +1,45 @@
 package com.mohammadkk.myaudioplayer
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
-import android.content.SharedPreferences
+import android.content.ServiceConnection
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mohammadkk.myaudioplayer.databinding.ActivityMainBinding
+import com.mohammadkk.myaudioplayer.databinding.ToastBinding
 import com.mohammadkk.myaudioplayer.extension.changeFragment
 import com.mohammadkk.myaudioplayer.extension.hasPermission
+import com.mohammadkk.myaudioplayer.extension.rescanPaths
 import com.mohammadkk.myaudioplayer.fragment.*
 import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.service.MediaService
 import com.mohammadkk.myaudioplayer.service.NotificationReceiver
+import com.mohammadkk.myaudioplayer.service.ScanLibraryService
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), ServiceConnection {
     private lateinit var binding: ActivityMainBinding
     private var handlePermission: ActivityResultLauncher<String>? = null
-    private lateinit var pref: SharedPreferences
+    private var libraryService: ScanLibraryService? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        pref = getSharedPreferences("cache_service", MODE_PRIVATE)
         initView()
         if (savedInstanceState == null) {
             supportFragmentManager.changeFragment(SongsFragment(), Constants.TAG_SONGS_FRAGMENT)
@@ -69,20 +76,28 @@ class MainActivity : AppCompatActivity() {
             handlePermission?.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
     }
-    private fun runView() {
-        if (getCurrentFragment() != null && getCurrentFragment() is BaseFragment) {
-            (getCurrentFragment() as BaseFragment).rescanDevice()
+    private fun createToast(message: String, @ColorRes color: Int) {
+        val toast = Toast(applicationContext)
+        val toastBinding = ToastBinding.inflate(layoutInflater)
+        toastBinding.root.background = GradientDrawable().apply {
+            setColor(ContextCompat.getColor(this@MainActivity, color))
+            cornerRadius = resources.getDimension(R.dimen.corner_rounded_toast)
         }
+        toastBinding.tvToast.text = message
+        @Suppress("DEPRECATION")
+        toast.view = toastBinding.root
+        toast.duration = Toast.LENGTH_SHORT
+        toast.show()
     }
-    private fun getCurrentFragment(): Fragment? {
-        val fragManager = supportFragmentManager
-        for (tag in Constants.TAGS_FRAGMENT) {
-            val fragment = fragManager.findFragmentByTag(tag)
-            if (fragment != null && fragment.isVisible) {
-                return fragment
+    private fun runView() {
+        val fragments = supportFragmentManager.fragments
+        for (fragment in fragments) {
+            if (fragment != null && fragment is BaseFragment) {
+                if (fragment.isVisible) {
+                    fragment.rescanDevice()
+                }
             }
         }
-        return null
     }
     private fun initView() {
         binding.bottomNavigationMusic.setOnItemSelectedListener {
@@ -118,23 +133,44 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.exitApp) {
-            if (MediaService.getIsExists()) {
-                Intent(this, NotificationReceiver::class.java).apply {
-                    action = AudioApp.ACTION_STOP_SERVICE
-                    sendBroadcast(this)
+        when (item.itemId) {
+            R.id.exitApp -> {
+                if (MediaService.getIsExists()) {
+                    Intent(this, NotificationReceiver::class.java).apply {
+                        action = AudioApp.ACTION_STOP_SERVICE
+                        sendBroadcast(this)
+                    }
+                }
+                finish()
+            }
+            R.id.updateLibrary -> {
+                createToast("Updating the library...", R.color.blue_A700)
+                createToast("please wait...", R.color.blue_A400)
+                libraryService?.scanRequireLibrary { library ->
+                    library.forEachIndexed { index, file ->
+                        rescanPaths(arrayOf(file.absolutePath))
+                        if (index == library.size - 1) {
+                            createToast("Refresh the page!!", R.color.green_A700)
+                        }
+                    }
                 }
             }
-            finish()
         }
         return super.onOptionsItemSelected(item)
     }
     override fun onStart() {
         super.onStart()
+        val intentService = Intent(this, ScanLibraryService::class.java)
+        startService(intentService)
+        bindService(intentService, this, BIND_AUTO_CREATE)
         val nowPlayerFragment = supportFragmentManager.findFragmentById(R.id.nowPlayerFrag)
         if (nowPlayerFragment != null && nowPlayerFragment is NowPlayerFragment) {
             nowPlayerFragment.updateView()
         }
+    }
+    override fun onStop() {
+        super.onStop()
+        unbindService(this)
     }
     override fun onResume() {
         super.onResume()
@@ -143,6 +179,12 @@ class MainActivity : AppCompatActivity() {
             isRuntimePermission = false
         }
         binding.nowPlayerFrag.isVisible = MediaService.getIsExists()
+    }
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        libraryService = (service as ScanLibraryService.LocalService).service
+    }
+    override fun onServiceDisconnected(name: ComponentName?) {
+        libraryService = null
     }
     companion object {
         private var isRuntimePermission = false

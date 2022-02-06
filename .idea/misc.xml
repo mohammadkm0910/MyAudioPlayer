@@ -26,10 +26,14 @@
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/artist_items.xml" value="0.2726449275362319" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_albums.xml" value="0.2128623188405797" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_artists.xml" value="0.1762917933130699" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_media.xml" value="0.3625" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_now_player.xml" value="0.33" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/fragment_songs.xml" value="0.1762917933130699" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/progress.xml" value="0.3625" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/song_items.xml" value="0.17603850050658562" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/toast.xml" value="0.2105978260869565" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/layout/track_items.xml" value="0.33" />
+        <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/menu/item_menu.xml" value="0.3625" />
         <entry key="..\:/Users/mohammad/StudioProjects/MyAudioPlayer/app/src/main/res/menu/main_menu.xml" value="0.31666666666666665" />
       </map>
     </option>

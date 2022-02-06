@@ -7,4 +7,5 @@
     <string name="permission_deny">You have not approved the required permission</string>
     <string name="permission_message">The My Audio Player requires access to internal storage to play and display audio data</string>
     <string name="title_exit_item_menu">Exit</string>
+    <string name="title_update_library_menu">Update Library</string>
 </resources>

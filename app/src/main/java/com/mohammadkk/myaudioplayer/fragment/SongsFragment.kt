@@ -34,6 +34,11 @@ class SongsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         initializeLayout(binding.songsListView)
         initializeListAdapter()
+        binding.fragRefresher.setOnRefreshListener {
+            adapter.clear()
+            rescanDevice()
+            stopRefreshing(binding.fragRefresher)
+        }
     }
     override fun rescanDevice() {
         trackViewModel?.scanTrackInDevice()

@@ -31,6 +31,11 @@ class ArtistsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         initializeLayout(binding.artistsGridView, 2)
         initializeListAdapter()
+        binding.fragRefresher.setOnRefreshListener {
+            adapter.clear()
+            rescanDevice()
+            stopRefreshing(binding.fragRefresher)
+        }
     }
     override fun rescanDevice() {
         artistViewModel?.scanArtistInDevice()

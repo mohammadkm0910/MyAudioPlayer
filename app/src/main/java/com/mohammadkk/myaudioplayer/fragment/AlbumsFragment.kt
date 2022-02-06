@@ -31,6 +31,11 @@ class AlbumsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         initializeLayout(binding.albumsGridView, 2)
         initializeListAdapter()
+        binding.fragRefresher.setOnRefreshListener {
+            adapter.clear()
+            rescanDevice()
+            stopRefreshing(binding.fragRefresher)
+        }
     }
     override fun rescanDevice() {
         albumViewModel?.scanAlbumInDevice()

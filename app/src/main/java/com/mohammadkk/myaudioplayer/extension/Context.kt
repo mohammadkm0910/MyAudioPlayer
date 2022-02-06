@@ -8,10 +8,12 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import com.mohammadkk.myaudioplayer.helper.BuildUtil
+import java.io.File
 
 fun Context.hasPermission(permission: String =  Manifest.permission.READ_EXTERNAL_STORAGE): Boolean {
     if (BuildUtil.isMarshmallowPlus()) {
@@ -19,6 +21,25 @@ fun Context.hasPermission(permission: String =  Manifest.permission.READ_EXTERNA
         return base == PackageManager.PERMISSION_GRANTED
     }
     return true
+}
+fun Context.getInternalStorage(): File {
+    val dir = getExternalFilesDirs(null)[0]
+    var path = dir.absolutePath
+    path = path.substring(0, path.indexOf("Android/data"))
+    path = path.trimEnd('/')
+    return File(path)
+}
+fun Context.rescanPaths(paths: Array<String>, callback: (() -> Unit)? = null) {
+    if (paths.isEmpty()) {
+        callback?.invoke()
+        return
+    }
+    var cnt = paths.size
+    MediaScannerConnection.scanFile(applicationContext, paths, null) { _, _ ->
+        if (--cnt == 0) {
+            callback?.invoke()
+        }
+    }
 }
 fun Context.queryCursor(
     uri: Uri,
