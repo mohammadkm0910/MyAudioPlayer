@@ -21,7 +21,7 @@ class ArtistsFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         adapter = ArtistsAdapter(requireContext())
         artistViewModel = ViewModelProvider(requireActivity())[ArtistViewModel::class.java]
-        rescanDevice()
+        artistViewModel?.scanArtistInDevice()
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentArtistsBinding.inflate(inflater, container, false)
@@ -33,12 +33,9 @@ class ArtistsFragment : BaseFragment() {
         initializeListAdapter()
         binding.fragRefresher.setOnRefreshListener {
             adapter.clear()
-            rescanDevice()
+            artistViewModel?.scanArtistInDevice()
             stopRefreshing(binding.fragRefresher)
         }
-    }
-    override fun rescanDevice() {
-        artistViewModel?.scanArtistInDevice()
     }
     override fun initializeListAdapter() {
         binding.artistsGridView.adapter = adapter

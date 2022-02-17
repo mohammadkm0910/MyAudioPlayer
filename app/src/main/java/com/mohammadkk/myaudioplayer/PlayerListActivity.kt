@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mohammadkk.myaudioplayer.adapter.TracksAdapter
 import com.mohammadkk.myaudioplayer.databinding.ActivityPlayerListBinding
+import com.mohammadkk.myaudioplayer.extension.hasPermission
 import com.mohammadkk.myaudioplayer.extension.isPortraitScreen
 import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.service.MediaService
@@ -63,6 +64,10 @@ class PlayerListActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
+        if (!hasPermission()) {
+            startActivity(Intent(this, SplashActivity::class.java))
+            finish()
+        }
         binding.nowPlayerFrag.isVisible = MediaService.getIsExists()
     }
     override fun onPause() {

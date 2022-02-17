@@ -3,8 +3,12 @@ package com.mohammadkk.myaudioplayer.service
 import android.app.Service
 import android.content.Intent
 import android.os.*
+import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import com.mohammadkk.myaudioplayer.extension.getInternalStorage
+import com.mohammadkk.myaudioplayer.extension.getStringVal
+import com.mohammadkk.myaudioplayer.extension.queryCursor
+import com.mohammadkk.myaudioplayer.helper.MusicUtil
 import java.io.File
 
 class ScanLibraryService : Service() {
@@ -13,14 +17,15 @@ class ScanLibraryService : Service() {
     override fun onBind(intent: Intent?): IBinder {
         return localBinder
     }
-    fun scanRequireLibrary(callback: (library: ArrayList<File>) -> Unit) {
+    fun scanRequireLibrary(callback: (library: ArrayList<File>, filesNot: ArrayList<File>) -> Unit) {
         val handlerThread = HandlerThread("scan_library")
         handlerThread.start()
         val looper = handlerThread.looper
         Handler(looper).post {
+            val fileNotExists = getMediaNotExists()
             val tracks = getLibraryScanDevice(getInternalStorage())
             Handler(Looper.getMainLooper()).post {
-                callback(tracks)
+                callback(tracks, fileNotExists)
                 handlerThread.quit()
             }
         }
@@ -34,6 +39,17 @@ class ScanLibraryService : Service() {
             } else if (isAudioSlow(singleFile.name)) {
                 listFiles.add(singleFile)
             }
+        }
+        return listFiles
+    }
+    private fun getMediaNotExists(): ArrayList<File> {
+        val listFiles = arrayListOf<File>()
+        val uri = MusicUtil.EXTERNAL_TRACK_URI
+        val projection = arrayOf(MediaStore.Audio.Media.DATA)
+        queryCursor(uri, projection) { cursor ->
+            val path = cursor.getStringVal(MediaStore.Audio.Media.DATA)
+            val file = File(path)
+            if (!file.exists()) listFiles.add(file)
         }
         return listFiles
     }

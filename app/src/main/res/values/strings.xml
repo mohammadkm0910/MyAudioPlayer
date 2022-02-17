@@ -8,4 +8,5 @@
     <string name="permission_message">The My Audio Player requires access to internal storage to play and display audio data</string>
     <string name="title_exit_item_menu">Exit</string>
     <string name="title_update_library_menu">Update Library</string>
+    <string name="delete_action">Delete</string>
 </resources>

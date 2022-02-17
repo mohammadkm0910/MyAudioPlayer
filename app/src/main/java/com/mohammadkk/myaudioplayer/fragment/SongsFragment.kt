@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import com.mohammadkk.myaudioplayer.MainActivity
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isFadeActivity
 import com.mohammadkk.myaudioplayer.MainActivity.Companion.isRestartActivity
 import com.mohammadkk.myaudioplayer.PlayerActivity
@@ -22,9 +23,9 @@ class SongsFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = TracksAdapter(requireContext())
+        adapter = TracksAdapter(requireActivity())
         trackViewModel = ViewModelProvider(requireActivity())[TrackViewModel::class.java]
-        rescanDevice()
+        trackViewModel?.scanTrackInDevice()
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSongsBinding.inflate(inflater, container, false)
@@ -36,14 +37,12 @@ class SongsFragment : BaseFragment() {
         initializeListAdapter()
         binding.fragRefresher.setOnRefreshListener {
             adapter.clear()
-            rescanDevice()
+            trackViewModel?.scanTrackInDevice()
             stopRefreshing(binding.fragRefresher)
         }
     }
-    override fun rescanDevice() {
-        trackViewModel?.scanTrackInDevice()
-    }
     override fun initializeListAdapter() {
+        val ma = requireActivity() as MainActivity
         binding.songsListView.adapter = adapter
         trackViewModel!!.deviceTrack.observe(viewLifecycleOwner) { tracks ->
             tracks?.run {
@@ -52,7 +51,16 @@ class SongsFragment : BaseFragment() {
             }
         }
         adapter.setOnItemClickListener { position ->
+            if (adapter.getSelectedItemCount() > 0) {
+                adapter.toggleSelected(position)
+                ma.createActionMode(adapter)
+                return@setOnItemClickListener
+            }
             onItemClickForList(position)
+        }
+        adapter.setOnItemLongClickListener { position ->
+            adapter.toggleSelected(position)
+            ma.createActionMode(adapter)
         }
     }
     override fun onItemClickForList(position: Int) {

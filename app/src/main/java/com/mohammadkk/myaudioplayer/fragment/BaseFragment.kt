@@ -9,8 +9,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mohammadkk.myaudioplayer.extension.isPortraitScreen
 
 abstract class BaseFragment : Fragment() {
-    abstract fun rescanDevice()
-
     protected fun initializeLayout(recyclerView: RecyclerView, count: Int = 1) {
         val mCount = if (requireActivity().isPortraitScreen) count else count * 2
         recyclerView.setHasFixedSize(true)
