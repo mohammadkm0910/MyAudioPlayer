@@ -1,5 +1,6 @@
 package com.mohammadkk.myaudioplayer.helper
 
+import android.app.PendingIntent
 import android.net.Uri
 
 object Constants {
@@ -11,4 +12,7 @@ object Constants {
 
     const val EXTRA_PAGE_TYPE = "extra_page_type"
     const val EXTRA_PAGE_SELECTED_ID = "extra_page_selected_id"
+    val PENDING_INTENT_FLAG = if (BuildUtil.isMarshmallowPlus()) {
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    } else 0
 }

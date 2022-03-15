@@ -21,6 +21,7 @@ import com.mohammadkk.myaudioplayer.extension.getCoverTrack
 import com.mohammadkk.myaudioplayer.extension.toContentUri
 import com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment
 import com.mohammadkk.myaudioplayer.helper.BuildUtil
+import com.mohammadkk.myaudioplayer.helper.Constants.PENDING_INTENT_FLAG
 import com.mohammadkk.myaudioplayer.model.Track
 import java.io.IOException
 
@@ -145,13 +146,13 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         .build()
     fun showNotification(playImg: Int) {
         val intent = Intent(this, PlayerActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val contentIntent = PendingIntent.getActivity(this, 0, intent, PENDING_INTENT_FLAG)
         val prevIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_PREVIOUS)
-        val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PENDING_INTENT_FLAG)
         val pauseIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_PLAY)
-        val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, PENDING_INTENT_FLAG)
         val nextIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_NEXT)
-        val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PENDING_INTENT_FLAG)
         val track = mediaList[serviceIndex]
         val thumbInit = baseContext.getCoverTrack(track.id.toContentUri())
         val thumb = thumbInit ?: BitmapFactory.decodeResource(resources, R.drawable.ic_music_large)
