@@ -35,13 +35,15 @@ fun Context.getInternalStorage(): File {
     return File(path)
 }
 fun Context.showToast(text: String?, length: Int = Toast.LENGTH_SHORT) {
-    if (BuildUtil.isOnMainThread()) {
-        runToast(this, text, length)
-    } else {
-        Handler(Looper.getMainLooper()).post {
+    try {
+        if (BuildUtil.isOnMainThread()) {
             runToast(this, text, length)
+        } else {
+            Handler(Looper.getMainLooper()).post {
+                runToast(this, text, length)
+            }
         }
-    }
+    } catch (e: Exception) { }
 }
 private fun runToast(context: Context, text: String?, length: Int = Toast.LENGTH_SHORT) {
     if (context is Activity) {
@@ -111,9 +113,8 @@ fun Context.getCoverTrack(uri: Uri): Bitmap? {
         val mmr = MediaMetadataRetriever()
         mmr.setDataSource(this, uri)
         val art = mmr.embeddedPicture
-        if (art != null) {
-            cover = BitmapFactory.decodeByteArray(art, 0, art.size, BitmapFactory.Options())
-        }
+        val options = BitmapFactory.Options()
+        cover = BitmapFactory.decodeByteArray(art ?: return null, 0, art.size, options)
     } catch (e: Exception) {
         e.printStackTrace()
     }

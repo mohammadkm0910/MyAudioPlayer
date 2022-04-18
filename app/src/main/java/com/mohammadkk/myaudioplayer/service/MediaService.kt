@@ -21,14 +21,15 @@ import com.mohammadkk.myaudioplayer.extension.getCoverTrack
 import com.mohammadkk.myaudioplayer.extension.toContentUri
 import com.mohammadkk.myaudioplayer.fragment.NowPlayerFragment
 import com.mohammadkk.myaudioplayer.helper.BuildUtil
-import com.mohammadkk.myaudioplayer.helper.Constants.PENDING_INTENT_FLAG
+import com.mohammadkk.myaudioplayer.helper.Constants
 import com.mohammadkk.myaudioplayer.model.Track
 import java.io.IOException
+
 
 class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
     private var bindService: IBinder = BindService()
     private var mediaPlayer: MediaPlayer? = null
-    private var mediaSessionCompat: MediaSessionCompat? = null
+    private var mMediaSession: MediaSessionCompat? = null
     private var listener: ServiceListener? = null
     private var serviceIndex = 0
 
@@ -38,13 +39,14 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     override fun onCreate() {
         super.onCreate()
         mediaPlayer = MediaPlayer()
-        mediaSessionCompat = MediaSessionCompat(baseContext, getString(R.string.app_name))
+        mMediaSession = MediaSessionCompat(baseContext, "MediaService")
         isExists = true
     }
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer?.stop()
         mediaPlayer?.release()
+        mMediaSession?.isActive = false
         isExists = false
         buildCacheApp.requirClear()
     }
@@ -53,15 +55,20 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
     @Throws(IOException::class)
     fun createMediaPlayer(position: Int) {
-        if (position >= 0 && position < mediaList.size) {
+        if (position >= 0 && position < trackList.size) {
             serviceIndex = position
             buildCacheApp.globalTrackIndexCaller = serviceIndex
-            mediaPlayer?.setDataSource(baseContext, mediaList[position].id.toContentUri())
-            val builderInfo = MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mediaList[position].title)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, mediaList[position].album)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, mediaList[position].artist)
-            mediaSessionCompat?.setMetadata(builderInfo.build())
+            val track = trackList[position]
+            mediaPlayer?.setDataSource(baseContext, track.id.toContentUri())
+            mMediaSession?.isActive = true
+            val metadata = MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, track.id.toString())
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration.toLong())
+                .build()
+            mMediaSession?.setMetadata(metadata)
         }
     }
     override fun onCompletion(mp: MediaPlayer?) {
@@ -88,10 +95,9 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         serviceIndex = buildCacheApp.globalTrackIndexCaller
-        buildCacheApp.getStoreTracks()?.run {
-            mediaList = this
-        }
-        if (serviceIndex == -1 && mediaList.isEmpty()) {
+        val tracks = buildCacheApp.getStoreTracks()
+        if (tracks != null) trackList = tracks
+        if (serviceIndex == -1 && trackList.isEmpty()) {
             stopSelf()
         }
         val actionName = intent?.getStringExtra("actionName")
@@ -111,7 +117,7 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         return START_STICKY
     }
     fun reset() {
-        mediaPlayer!!.reset()
+        mediaPlayer?.reset()
     }
     fun setDefaultAudioStream() {
         if (BuildUtil.isOreoPlus()) {
@@ -126,13 +132,13 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         mediaPlayer?.prepareAsync()
     }
     fun start() {
-        mediaPlayer!!.start()
+        mediaPlayer?.start()
     }
     fun seekTo(mSec: Int) {
-        mediaPlayer!!.seekTo(mSec)
+        mediaPlayer?.seekTo(mSec)
     }
     fun pause() {
-        mediaPlayer!!.pause()
+        mediaPlayer?.pause()
     }
     val isPlaying: Boolean
         get() = mediaPlayer!!.isPlaying
@@ -145,24 +151,25 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         .setUsage(AudioAttributes.USAGE_MEDIA)
         .build()
     fun showNotification(playImg: Int) {
-        val intent = Intent(this, PlayerActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(this, 0, intent, PENDING_INTENT_FLAG)
+        val flags = Constants.PENDING_INTENT_FLAG
+        val mi = Intent(this, PlayerActivity::class.java)
+        val contentIntent = PendingIntent.getActivity(this, 0, mi, flags)
         val prevIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_PREVIOUS)
-        val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PENDING_INTENT_FLAG)
+        val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, flags)
         val pauseIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_PLAY)
-        val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, PENDING_INTENT_FLAG)
+        val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, flags)
         val nextIntent = Intent(this, NotificationReceiver::class.java).setAction(AudioApp.ACTION_NEXT)
-        val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PENDING_INTENT_FLAG)
-        val track = mediaList[serviceIndex]
-        val thumbInit = baseContext.getCoverTrack(track.id.toContentUri())
-        val thumb = thumbInit ?: BitmapFactory.decodeResource(resources, R.drawable.ic_music_large)
+        val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, flags)
+        val track = trackList[serviceIndex]
+        var cover = getCoverTrack(track.id.toContentUri())
+        cover = cover ?: BitmapFactory.decodeResource(resources, R.drawable.ic_music_large)
         buildCacheApp.iconPausedCaller = playImg
         buildCacheApp.titleTextCaller = track.title
         buildCacheApp.artistTextCaller = track.artist
         NowPlayerFragment.listener?.updateNowPlay(playImg, track)
         val notification = NotificationCompat.Builder(this, AudioApp.AUDIO_CHANNEL)
             .setSmallIcon(R.drawable.ic_track)
-            .setLargeIcon(thumb)
+            .setLargeIcon(cover)
             .setContentTitle(track.title)
             .setContentText(track.artist)
             .setContentIntent(contentIntent)
@@ -170,13 +177,13 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             .addAction(playImg, "Pause", pausePending)
             .addAction(R.drawable.ic_skip_next, "Next", nextPending)
             .setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(
-                    mediaSessionCompat!!.sessionToken
-                ).setShowActionsInCompactView(0, 1, 2)
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    .setShowActionsInCompactView(0, 1, 2)
+                    .setMediaSession(mMediaSession?.sessionToken)
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setOnlyAlertOnce(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOnlyAlertOnce(true)
             .build()
         startForeground(1, notification)
     }
@@ -187,8 +194,7 @@ class MediaService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     companion object {
         private var isExists: Boolean = false
         fun getIsExists() = isExists
-        private var mediaList = ArrayList<Track>()
-        @JvmName("getMediaList1")
-        fun getMediaList(): ArrayList<Track> = mediaList
+        private var trackList = ArrayList<Track>()
+        fun getMediaList(): ArrayList<Track> = trackList
     }
 }
